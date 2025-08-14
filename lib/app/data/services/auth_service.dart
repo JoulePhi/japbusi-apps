@@ -15,14 +15,16 @@ class AuthService extends GetxService {
   final Rx<User?> _user = Rx<User?>(null);
   final RxBool _isLoggedIn = false.obs;
   final RxString _token = ''.obs;
+  String _fcmToken = '';
 
   // Getters
   User? get user => _user.value;
   bool get isLoggedIn => _isLoggedIn.value;
   String get token => _token.value;
 
-  Future<AuthService> init() async {
+  Future<AuthService> init(String fcmToken) async {
     await _loadTokenAndUser();
+    _fcmToken = fcmToken;
     return this;
   }
 
@@ -64,7 +66,11 @@ class AuthService extends GetxService {
   }
 
   Future<void> login(String email, String password) async {
-    final response = await _authProvider.login(email, password);
+    final response = await _authProvider.login(
+      email,
+      password,
+      fcmToken: _fcmToken,
+    );
     await _saveAuthData(response);
   }
 

@@ -8,8 +8,6 @@ import '../controllers/home_controller.dart';
 class GrievancesBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => GriveanceProvider());
-    Get.put(GriveanceService());
     Get.lazyPut<GrievancesController>(() => GrievancesController());
   }
 }

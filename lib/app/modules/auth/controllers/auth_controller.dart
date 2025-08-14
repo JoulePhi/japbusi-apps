@@ -35,14 +35,19 @@ class AuthController extends GetxController {
   }
 
   // Form validation
-  String? validateEmail(String? value) {
+  String? validateEmailOrPhone(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter your email';
+      return 'Please enter your email or phone number';
     }
-    if (!GetUtils.isEmail(value)) {
-      return 'Please enter a valid email';
+    // Check if input is a valid email
+    if (GetUtils.isEmail(value)) {
+      return null;
     }
-    return null;
+    // Check if input is a valid phone number (basic check)
+    if (GetUtils.isPhoneNumber(value)) {
+      return null;
+    }
+    return 'Please enter a valid email or phone number';
   }
 
   String? validatePassword(String? value) {

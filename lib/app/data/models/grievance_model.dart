@@ -113,9 +113,9 @@ class Griveance {
     id: json["id"],
     nomor: json["nomor"],
     idFederation: json["id_federation"],
-    title: json["title"],
+    title: json["title"] ?? '',
     date: DateTime.parse(json["date"]),
-    detail: json["detail"],
+    detail: json["detail"] ?? '',
     status: json["status"],
     step: json["step"],
     stepDetail: json["step_detail"],
@@ -124,14 +124,16 @@ class Griveance {
     user: json["user"] == null ? null : User.fromJson(json["user"]),
     companyCityId: json["company_city_id"],
     readed: json["readed"],
-    createdBy: json["created_by"],
+    createdBy: json["created_by"] ?? '',
     createdAt: DateTime.parse(json["created_at"]),
-    updatedBy: json["updated_by"],
+    updatedBy: json["updated_by"] ?? '',
     updatedAt: DateTime.parse(json["updated_at"]),
-    categoryName: json["category_name"],
+    categoryName: json["category_name"] ?? '',
     levelName: json["level_name"] ?? '',
     subLevelName: json["sublevel_name"] ?? '',
-    files: List<String>.from(json["files"].map((x) => x)),
+    files: json["files"] == null
+        ? <String>[]
+        : List<String>.from(json["files"].map((x) => x ?? '')),
     replies: json["replies"] == null
         ? null
         : List<Reply>.from(json["replies"].map((x) => Reply.fromJson(x))),

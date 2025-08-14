@@ -1,9 +1,12 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:japbusi/app/modules/home/controllers/article_controller.dart';
 import 'package:japbusi/app/modules/home/controllers/home_controller.dart';
+import 'package:japbusi/app/routes/app_pages.dart';
 import 'package:japbusi/app/utils/app_colors.dart';
+import 'package:japbusi/app/utils/app_formatter.dart';
 import 'package:japbusi/app/utils/app_text_styles.dart';
 
 class ArticleTab extends GetView<ArticleController> {
@@ -53,6 +56,7 @@ class ArticleTab extends GetView<ArticleController> {
                     ),
                     Expanded(
                       child: TextField(
+                        controller: controller.searchController,
                         style: AppTextStyles.caption.copyWith(
                           color: AppColors.textPrimary,
                         ),
@@ -94,71 +98,97 @@ class ArticleTab extends GetView<ArticleController> {
               Divider(color: AppColors.orangeColor, thickness: 1),
               SizedBox(height: 16.0),
               Expanded(
-                child: ListView.builder(
-                  itemCount: 10,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      padding: EdgeInsets.all(10),
-                      margin: EdgeInsets.only(bottom: 16.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 5,
-                            offset: Offset(0, 3),
+                child: Obx(
+                  () => controller.isArticleLoading.value
+                      ? Center(child: CircularProgressIndicator())
+                      : controller.articles.isEmpty
+                      ? Center(
+                          child: Text(
+                            'Tidak ada artikel',
+                            style: AppTextStyles.body1,
                           ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.asset(
-                              'assets/artikel1.png',
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          SizedBox(width: 16.0),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Gapki-Japbusi Sepakati Kolaborasi Bipartit Atasi Pelanggaran Hak Pekerja',
-                                  style: AppTextStyles.headline2.copyWith(
-                                    color: AppColors.textPrimary,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                SizedBox(height: 8.0),
-                                Row(
-                                  children: [
-                                    FaIcon(
-                                      FontAwesomeIcons.calendar,
-                                      size: 12,
-                                      color: AppColors.primaryColor,
+                        )
+                      : ListView.builder(
+                          itemCount: controller.articles.length,
+                          itemBuilder: (context, index) {
+                            final article = controller.articles[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Get.toNamed(
+                                  Routes.ARTICLE,
+                                  arguments: {'id': article.id},
+                                );
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(10),
+                                margin: EdgeInsets.only(bottom: 16.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.2),
+                                      spreadRadius: 1,
+                                      blurRadius: 5,
+                                      offset: Offset(0, 3),
                                     ),
-                                    SizedBox(width: 4.0),
-                                    Text(
-                                      '12 Desember 2023',
-                                      style: AppTextStyles.caption.copyWith(
-                                        color: AppColors.primaryColor,
+                                  ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: CachedNetworkImage(
+                                        imageUrl: article.thumbnail,
+                                        width: 80,
+                                        height: 80,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    SizedBox(width: 16.0),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            article.title,
+                                            style: AppTextStyles.headline2
+                                                .copyWith(
+                                                  color: AppColors.textPrimary,
+                                                  fontSize: 14,
+                                                ),
+                                          ),
+                                          SizedBox(height: 8.0),
+                                          Row(
+                                            children: [
+                                              FaIcon(
+                                                FontAwesomeIcons.calendar,
+                                                size: 12,
+                                                color: AppColors.primaryColor,
+                                              ),
+                                              SizedBox(width: 4.0),
+                                              Text(
+                                                AppFormatter.formatDate(
+                                                  article.createdAt,
+                                                ),
+                                                style: AppTextStyles.caption
+                                                    .copyWith(
+                                                      color: AppColors
+                                                          .primaryColor,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                              ),
+                            );
+                          },
+                        ),
                 ),
               ),
             ],

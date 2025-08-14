@@ -14,7 +14,7 @@ class Gallery extends GetView<DetailController> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Text('Gallery', style: AppTextStyles.caption),
+            child: Text('Lampiran', style: AppTextStyles.caption),
           ),
           Obx(() {
             if (controller.grievanceDetail.value!.files.isEmpty) {
@@ -33,7 +33,8 @@ class Gallery extends GetView<DetailController> {
               itemCount: controller.grievanceDetail.value!.files.length,
               itemBuilder: (context, index) {
                 return CachedNetworkImage(
-                  imageUrl: controller.grievanceDetail.value!.files[index],
+                  imageUrl:
+                      controller.grievanceDetail.value!.files[index] ?? '',
                   fit: BoxFit.cover,
                   placeholder: (context, url) =>
                       Center(child: CircularProgressIndicator()),

@@ -42,9 +42,13 @@ class ProfileInfoItem extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 4),
-              Text(
-                value,
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: Text(
+                  value,
+                  softWrap: true,
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                ),
               ),
             ],
           ),

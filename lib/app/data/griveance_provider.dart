@@ -12,14 +12,16 @@ class GriveanceProvider extends GetConnect {
     });
   }
 
-  Future<Response> grievances() async {
+  Future<Response> grievances(String? search) async {
     final response = await get(
       '/grievances',
       headers: {'authorization': 'Bearer ${Get.find<AuthService>().token}'},
+      query: {'search': search},
     );
     if (response.status.hasError) {
       throw Exception(response.statusText);
     }
+    print("Response from grievances: ${response.body}");
     return Response(
       statusCode: response.statusCode,
       body: response.body,
@@ -32,6 +34,28 @@ class GriveanceProvider extends GetConnect {
       '/grievance/$nomor',
       headers: {'authorization': 'Bearer ${Get.find<AuthService>().token}'},
     );
+    if (response.status.hasError) {
+      throw Exception(response.statusText);
+    }
+    return Response(
+      statusCode: response.statusCode,
+      body: response.body,
+      statusText: response.statusText,
+    );
+  }
+
+  Future<Response> submitGrievance(Map<String, dynamic> data) async {
+    final formMap = Map<String, dynamic>.from(data);
+    formMap.remove('files');
+
+    final form = FormData(formMap);
+    final response = await post(
+      '/submit-grievance',
+      form,
+      contentType: 'multipart/form-data',
+      headers: {'authorization': 'Bearer ${Get.find<AuthService>().token}'},
+    );
+    print("Response from submitGrievance: ${response.body}");
     if (response.status.hasError) {
       throw Exception(response.statusText);
     }

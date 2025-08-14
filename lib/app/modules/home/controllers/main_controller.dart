@@ -15,6 +15,12 @@ import 'package:japbusi/app/modules/home/views/settings_tab.dart';
 
 class MainController extends GetxController {
   final selectedMenu = 0.obs;
+  final PageController pageController = PageController();
+
+  int onPageChanged(int index) {
+    selectedMenu.value = index;
+    return index;
+  }
 
   Route getRoute(RouteSettings settings, int tabId) {
     Widget page;

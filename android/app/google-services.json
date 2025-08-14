@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1058335274059",
+    "project_id": "japbusi",
+    "storage_bucket": "japbusi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1058335274059:android:17183986224e3ffc8d49ce",
+        "android_client_info": {
+          "package_name": "com.rdpl.japbusi.japbusi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiKDI-OVaDZkQYUTgAk1wd6mpTuhU8tmA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

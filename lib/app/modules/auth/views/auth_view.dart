@@ -53,40 +53,40 @@ class AuthView extends GetView<AuthController> {
                     Obx(
                       () => controller.isLoginView.value
                           ? _buildLoginForm()
-                          : _buildRegisterForm(),
+                          : _buildLoginForm(),
                     ),
 
                     const SizedBox(height: 20),
 
                     // Switch between Login/Register
-                    Obx(
-                      () => Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            controller.isLoginView.value
-                                ? 'Belum punya akun? '
-                                : 'Sudah punya akun? ',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: controller.toggleAuthView,
-                            child: Text(
-                              controller.isLoginView.value
-                                  ? 'Daftar Sekarang'
-                                  : 'Masuk',
-                              style: TextStyle(
-                                color: AppColors.primaryColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // Obx(
+                    //   () => Row(
+                    //     mainAxisAlignment: MainAxisAlignment.center,
+                    //     children: [
+                    //       Text(
+                    //         controller.isLoginView.value
+                    //             ? 'Belum punya akun? '
+                    //             : 'Sudah punya akun? ',
+                    //         style: TextStyle(
+                    //           color: Colors.grey[600],
+                    //           fontSize: 14,
+                    //         ),
+                    //       ),
+                    //       GestureDetector(
+                    //         onTap: controller.toggleAuthView,
+                    //         child: Text(
+                    //           controller.isLoginView.value
+                    //               ? 'Daftar Sekarang'
+                    //               : 'Masuk',
+                    //           style: TextStyle(
+                    //             color: AppColors.primaryColor,
+                    //             fontWeight: FontWeight.bold,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -123,7 +123,7 @@ class AuthView extends GetView<AuthController> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            validator: controller.validateEmail,
+            validator: controller.validateEmailOrPhone,
           ),
 
           const SizedBox(height: 16),
@@ -241,7 +241,8 @@ class AuthView extends GetView<AuthController> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            validator: controller.validateEmail,
+            validator: controller
+                .validateEmailOrPhone, // Use the same validation for email or phone
           ),
 
           const SizedBox(height: 16),

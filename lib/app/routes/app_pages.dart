@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 
 import '../middlewares/auth_middleware.dart';
+import '../modules/article/bindings/article_binding.dart';
+import '../modules/article/views/article_view.dart';
 import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/auth_view.dart';
 import '../modules/detail/bindings/detail_binding.dart';
@@ -32,6 +34,11 @@ class AppPages {
       page: () => const DetailView(),
       binding: DetailBinding(),
       middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: _Paths.ARTICLE,
+      page: () => const ArticleView(),
+      binding: ArticleBinding(),
     ),
   ];
 }

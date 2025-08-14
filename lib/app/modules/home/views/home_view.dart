@@ -13,42 +13,51 @@ class HomeView extends GetView<MainController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Obx(
-        () => IndexedStack(
-          index: controller.selectedMenu.value,
-          children: [
-            Navigator(
-              key: Get.nestedKey(1), // Unique key for first tab
-              initialRoute: '/',
-              onGenerateRoute: (settings) => controller.getRoute(settings, 1),
-            ),
-            Navigator(
-              key: Get.nestedKey(2), // Unique key for second tab
-              initialRoute: '/',
-              onGenerateRoute: (settings) => controller.getRoute(settings, 2),
-            ),
-            Navigator(
-              key: Get.nestedKey(3), // Unique key for third tab
-              initialRoute: '/',
-              onGenerateRoute: (settings) => controller.getRoute(settings, 3),
-            ),
-            Navigator(
-              key: Get.nestedKey(4), // Unique key for fourth tab
-              initialRoute: '/',
-              onGenerateRoute: (settings) => controller.getRoute(settings, 4),
-            ),
-          ],
-        ),
+      body: PageView(
+        controller: controller.pageController,
+        onPageChanged: controller.onPageChanged,
+        physics: const BouncingScrollPhysics(),
+        children: [
+          Navigator(
+            key: Get.nestedKey(1),
+            initialRoute: '/',
+            onGenerateRoute: (settings) => controller.getRoute(settings, 1),
+          ),
+          Navigator(
+            key: Get.nestedKey(2),
+            initialRoute: '/',
+            onGenerateRoute: (settings) => controller.getRoute(settings, 2),
+          ),
+          Navigator(
+            key: Get.nestedKey(3),
+            initialRoute: '/',
+            onGenerateRoute: (settings) => controller.getRoute(settings, 3),
+          ),
+          Navigator(
+            key: Get.nestedKey(4),
+            initialRoute: '/',
+            onGenerateRoute: (settings) => controller.getRoute(settings, 4),
+          ),
+        ],
+        // Set the current page to match the selected menu
+        // This is handled by controller.pageController.animateToPage in onTap/onPageChanged
       ),
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(
           backgroundColor: Colors.white,
           currentIndex: controller.selectedMenu.value,
-          onTap: controller.switchTab,
+          onTap: (index) {
+            controller.switchTab(index);
+            controller.pageController.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.ease,
+            );
+          },
           type: BottomNavigationBarType.shifting,
           useLegacyColorScheme: false,
           selectedItemColor: AppColors.successColor,
-          unselectedItemColor: AppColors.successColor.withValues(alpha: 0.6),
+          unselectedItemColor: AppColors.successColor.withAlpha(153),
           selectedLabelStyle: AppTextStyles.success.copyWith(
             fontSize: 12,
             fontWeight: FontWeight.bold,

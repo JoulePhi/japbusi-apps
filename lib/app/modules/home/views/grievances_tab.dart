@@ -56,6 +56,7 @@ class GrievancesTab extends GetView<GrievancesController> {
                     ),
                     Expanded(
                       child: TextField(
+                        controller: controller.searchController,
                         style: AppTextStyles.caption.copyWith(
                           color: AppColors.textPrimary,
                         ),
@@ -100,7 +101,7 @@ class GrievancesTab extends GetView<GrievancesController> {
                 init: GrievancesController(),
                 initState: (_) {
                   // Fetch grievances when the controller is initialized
-                  controller.fetchGrievances();
+                  controller.fetchGrievances(null);
                 },
                 builder: (c) {
                   // Ensure grievances are fetched
@@ -124,7 +125,7 @@ class GrievancesTab extends GetView<GrievancesController> {
                   return Expanded(
                     child: RefreshIndicator(
                       onRefresh: () {
-                        c.fetchGrievances();
+                        c.fetchGrievances(null);
                         return Future.value();
                       },
                       child: ListView.builder(
@@ -182,13 +183,40 @@ class GrievancesTab extends GetView<GrievancesController> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  c.grievances[index].nomor.toString(),
-                                  style: AppTextStyles.headline3.copyWith(
-                                    color: AppColors.textPurple,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      c.grievances[index].nomor.toString(),
+                                      style: AppTextStyles.headline3.copyWith(
+                                        color: AppColors.textPurple,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 20.0,
+                                        vertical: 4.0,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            AppColors.statusColors[c
+                                                .grievances[index]
+                                                .status],
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        c.grievances[index].levelName,
+                                        style: AppTextStyles.caption.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 SizedBox(height: 8.0),
                                 IntrinsicHeight(

@@ -7,10 +7,15 @@ class AuthProvider extends GetConnect {
     httpClient.baseUrl = 'https://smilecloud.id/japbusi2/api';
   }
 
-  Future<AuthResponse> login(String email, String password) async {
+  Future<AuthResponse> login(
+    String email,
+    String password, {
+    String fcmToken = '',
+  }) async {
     final response = await post('/login', {
       'email': email,
       'password': password,
+      'fcm_token': fcmToken,
     });
     if (response.status.hasError) {
       print('Login error: ${response.statusText}');
