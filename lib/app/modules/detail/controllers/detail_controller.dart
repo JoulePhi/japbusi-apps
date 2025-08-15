@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:japbusi/app/data/models/grievance_model.dart';
 import 'package:japbusi/app/data/services/griveance_service.dart';
+import 'package:japbusi/app/utils/app_snackbar.dart';
 
 class DetailController extends GetxController {
   final _griveanceService = Get.find<GriveanceService>();
@@ -23,20 +24,20 @@ class DetailController extends GetxController {
   void onInit() {
     super.onInit();
     var nomor = Get.arguments['nomor'];
+    print('Nomor Detail Aduan $nomor');
     if (nomor != null) {
       try {
         isLoading.value = true;
         _griveanceService.getDetail(nomor).then((grievance) {
-          print("Grievance detail fetched: ${grievance.nomor}");
           grievanceDetail.value = grievance;
         });
       } catch (e) {
-        Get.snackbar("Error", "Failed to fetch grievance detail");
+        AppSnackbar.error("Terjadi Kesalahan", e.toString());
       } finally {
         isLoading.value = false;
       }
     } else {
-      Get.snackbar("Error", "No grievance number provided");
+      AppSnackbar.error("Terjadi Kesalahan", "Gagal mendapatkan detail");
     }
   }
 
@@ -51,11 +52,7 @@ class DetailController extends GetxController {
         }
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to pick images: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppSnackbar.error("Terjadi Kesalahan", "Gagal mendapatkan gambar");
     }
   }
 

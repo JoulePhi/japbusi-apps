@@ -5,7 +5,7 @@ import 'package:japbusi/app/data/models/user_model.dart';
 
 class Griveance {
   final int id;
-  final int nomor;
+  final String nomor;
   final int idFederation;
   final String title;
   final DateTime date;
@@ -56,7 +56,7 @@ class Griveance {
 
   Griveance copyWith({
     int? id,
-    int? nomor,
+    String? nomor,
     int? idFederation,
     String? title,
     DateTime? date,

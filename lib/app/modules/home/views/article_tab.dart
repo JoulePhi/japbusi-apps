@@ -109,6 +109,7 @@ class ArticleTab extends GetView<ArticleController> {
                           ),
                         )
                       : ListView.builder(
+                          controller: controller.scrollController,
                           itemCount: controller.articles.length,
                           itemBuilder: (context, index) {
                             final article = controller.articles[index];

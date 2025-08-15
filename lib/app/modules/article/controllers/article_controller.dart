@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:japbusi/app/data/models/article_model.dart';
 import 'package:japbusi/app/data/services/home_service.dart';
+import 'package:japbusi/app/utils/app_snackbar.dart';
 
 class ArticleDetailController extends GetxController {
   late HomeService _homeService;
@@ -22,7 +23,7 @@ class ArticleDetailController extends GetxController {
       article.value = await _homeService.getArticle(id);
     } catch (e) {
       print("Error fetching article: $e");
-      Get.snackbar("Error", "Failed to load article: $e");
+      AppSnackbar.error("Error", "Failed to load article: $e");
     } finally {
       isArticleLoading.value = false;
     }

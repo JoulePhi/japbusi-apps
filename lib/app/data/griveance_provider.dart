@@ -19,7 +19,14 @@ class GriveanceProvider extends GetConnect {
       query: {'search': search},
     );
     if (response.status.hasError) {
-      throw Exception(response.statusText);
+      final messages = response.body['messages'] ?? [];
+      String error = '';
+      if (messages is Map) {
+        error = messages.values.first;
+      } else {
+        error = messages;
+      }
+      throw Exception(error);
     }
     print("Response from grievances: ${response.body}");
     return Response(
@@ -29,13 +36,21 @@ class GriveanceProvider extends GetConnect {
     );
   }
 
-  Future<Response> grievance(int nomor) async {
+  Future<Response> grievance(String nomor) async {
+    print('Nomor Request $nomor');
     final response = await get(
       '/grievance/$nomor',
       headers: {'authorization': 'Bearer ${Get.find<AuthService>().token}'},
     );
     if (response.status.hasError) {
-      throw Exception(response.statusText);
+      final messages = response.body['messages'] ?? [];
+      String error = '';
+      if (messages is Map) {
+        error = messages.values.first;
+      } else {
+        error = messages;
+      }
+      throw Exception(error);
     }
     return Response(
       statusCode: response.statusCode,
@@ -57,7 +72,14 @@ class GriveanceProvider extends GetConnect {
     );
     print("Response from submitGrievance: ${response.body}");
     if (response.status.hasError) {
-      throw Exception(response.statusText);
+      final messages = response.body['messages'] ?? [];
+      String error = '';
+      if (messages is Map) {
+        error = messages.values.first;
+      } else {
+        error = messages;
+      }
+      throw Exception(error);
     }
     return Response(
       statusCode: response.statusCode,

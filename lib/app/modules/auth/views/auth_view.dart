@@ -1,7 +1,13 @@
 // lib/app/modules/auth/views/auth_view.dart (continued)
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:japbusi/app/data/models/city_model.dart';
+import 'package:japbusi/app/data/models/federation_model.dart';
+import 'package:japbusi/app/data/models/sublevel_model.dart';
+import 'package:japbusi/app/modules/splash/controllers/splash_controller.dart';
 import 'package:japbusi/app/utils/app_colors.dart';
+import 'package:japbusi/app/utils/app_field.dart';
 import 'package:japbusi/app/utils/app_text_styles.dart';
 import '../controllers/auth_controller.dart';
 
@@ -40,53 +46,60 @@ class AuthView extends GetView<AuthController> {
             ),
             Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // App Logo
-                    Image.asset('assets/logo.png', height: 100),
-
-                    const SizedBox(height: 30),
+                    Obx(
+                      () => controller.isLoginView.value
+                          ? Image.asset('assets/logo.png', height: 100)
+                          : const SizedBox(),
+                    ),
+                    Obx(
+                      () => controller.isLoginView.value
+                          ? const SizedBox(height: 30)
+                          : const SizedBox(),
+                    ),
 
                     // Form
                     Obx(
                       () => controller.isLoginView.value
                           ? _buildLoginForm()
-                          : _buildLoginForm(),
+                          : _buildRegisterForm(),
                     ),
 
                     const SizedBox(height: 20),
 
                     // Switch between Login/Register
-                    // Obx(
-                    //   () => Row(
-                    //     mainAxisAlignment: MainAxisAlignment.center,
-                    //     children: [
-                    //       Text(
-                    //         controller.isLoginView.value
-                    //             ? 'Belum punya akun? '
-                    //             : 'Sudah punya akun? ',
-                    //         style: TextStyle(
-                    //           color: Colors.grey[600],
-                    //           fontSize: 14,
-                    //         ),
-                    //       ),
-                    //       GestureDetector(
-                    //         onTap: controller.toggleAuthView,
-                    //         child: Text(
-                    //           controller.isLoginView.value
-                    //               ? 'Daftar Sekarang'
-                    //               : 'Masuk',
-                    //           style: TextStyle(
-                    //             color: AppColors.primaryColor,
-                    //             fontWeight: FontWeight.bold,
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
+                    Obx(
+                      () => Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            controller.isLoginView.value
+                                ? 'Belum punya akun? '
+                                : 'Sudah punya akun? ',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: controller.toggleAuthView,
+                            child: Text(
+                              controller.isLoginView.value
+                                  ? 'Daftar Sekarang'
+                                  : 'Masuk',
+                              style: TextStyle(
+                                color: AppColors.primaryColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -106,22 +119,10 @@ class AuthView extends GetView<AuthController> {
           TextFormField(
             controller: controller.emailController,
             keyboardType: TextInputType.emailAddress,
-            decoration: InputDecoration(
-              labelText: 'Email / Phone',
-              hintText: 'Masukan email atau nomor telepon Anda',
-              labelStyle: AppTextStyles.caption.copyWith(fontSize: 14),
-              hintStyle: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-                fontSize: 14,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
-              ),
-              prefixIcon: const Icon(Icons.email_outlined),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
+            decoration: AppField.primaryField(
+              'Email atau Nomor Telepon',
+              'Masukan email atau nomor telepon Anda',
+              Icons.email_outlined,
             ),
             validator: controller.validateEmailOrPhone,
           ),
@@ -133,22 +134,10 @@ class AuthView extends GetView<AuthController> {
             () => TextFormField(
               controller: controller.passwordController,
               obscureText: controller.obscurePassword.value,
-              decoration: InputDecoration(
-                labelText: 'Kata Sandi',
-                hintText: 'Masukan kata sandi Anda',
-                prefixIcon: const Icon(Icons.lock_outline),
-                labelStyle: AppTextStyles.caption.copyWith(fontSize: 14),
-                hintStyle: AppTextStyles.caption.copyWith(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(
-                    color: AppColors.primaryColor,
-                    width: 2,
-                  ),
-                ),
+              decoration: AppField.primaryField(
+                'Kata Sandi',
+                'Masukan kata sandi Anda',
+                Icons.lock_outline,
                 suffixIcon: IconButton(
                   icon: Icon(
                     controller.obscurePassword.value
@@ -156,9 +145,6 @@ class AuthView extends GetView<AuthController> {
                         : Icons.visibility_off_outlined,
                   ),
                   onPressed: controller.togglePasswordVisibility,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
               validator: controller.validatePassword,
@@ -208,96 +194,563 @@ class AuthView extends GetView<AuthController> {
   }
 
   Widget _buildRegisterForm() {
-    return Form(
-      key: controller.registerFormKey,
+    return Obx(
+      () => Form(
+        key: controller.registerFormKey,
+        child: Stepper(
+          currentStep: controller.currentStep.value,
+          onStepTapped: controller.goToStep,
+          physics: AlwaysScrollableScrollPhysics(),
+          controlsBuilder: (BuildContext context, ControlsDetails details) {
+            return Row(
+              children: [
+                if (details.stepIndex < 2)
+                  ElevatedButton(
+                    onPressed: controller.nextStep,
+                    child: Text('Selanjutnya', style: AppTextStyles.button),
+                  ),
+                if (details.stepIndex == 2)
+                  Obx(
+                    () => ElevatedButton(
+                      onPressed: controller.isLoading.value
+                          ? null
+                          : controller.register,
+                      child: controller.isLoading.value
+                          ? CircularProgressIndicator(color: Colors.white)
+                          : Text('Daftar'),
+                    ),
+                  ),
+                SizedBox(width: 8),
+                if (details.stepIndex > 0)
+                  ElevatedButton(
+                    onPressed: controller.previousStep,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.orangeColor,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text('Kembali', style: AppTextStyles.button),
+                  ),
+              ],
+            );
+          },
+          steps: [
+            Step(
+              title: Text('Informasi Pribadi', style: AppTextStyles.body1),
+              content: _buildPersonalInfoStep(),
+              isActive: controller.currentStep.value >= 0,
+            ),
+            Step(
+              title: Text('Informasi Pekerjaan', style: AppTextStyles.body1),
+              content: _buildProfessionalInfoStep(),
+              isActive: controller.currentStep.value >= 1,
+            ),
+            Step(
+              title: Text('Informasi Akun', style: AppTextStyles.body1),
+              content: _buildAccountInfoStep(),
+              isActive: controller.currentStep.value >= 2,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPersonalInfoStep() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
         children: [
-          // Name Field
+          // Full Name
           TextFormField(
-            controller: controller.nameController,
-            keyboardType: TextInputType.name,
-            decoration: InputDecoration(
-              labelText: 'Full Name',
-              hintText: 'Enter your full name',
-              prefixIcon: const Icon(Icons.person_outline),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
+            controller: controller.fullNameController,
+            decoration: AppField.primaryField(
+              'Nama Lengkap',
+              'Masukkan nama lengkap Anda',
+              Icons.person_outline,
             ),
-            validator: controller.validateName,
           ),
+          SizedBox(height: 16),
 
-          const SizedBox(height: 16),
-
-          // Email Field
+          // Email (Optional)
           TextFormField(
             controller: controller.emailController,
+            decoration: AppField.primaryField(
+              'Email (Optional)',
+              'Masukkan alamat email Anda',
+              Icons.email_outlined,
+            ),
             keyboardType: TextInputType.emailAddress,
-            decoration: InputDecoration(
-              labelText: 'Email',
-              hintText: 'Enter your email',
-              prefixIcon: const Icon(Icons.email_outlined),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            validator: controller
-                .validateEmailOrPhone, // Use the same validation for email or phone
           ),
+          SizedBox(height: 16),
 
-          const SizedBox(height: 16),
-
-          // Password Field
-          Obx(
-            () => TextFormField(
-              controller: controller.passwordController,
-              obscureText: controller.obscurePassword.value,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                hintText: 'Enter your password',
-                prefixIcon: const Icon(Icons.lock_outline),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    controller.obscurePassword.value
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                  ),
-                  onPressed: controller.togglePasswordVisibility,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              validator: controller.validatePassword,
+          // Phone Number
+          TextFormField(
+            controller: controller.phoneController,
+            decoration: AppField.primaryField(
+              'Nomor Telepon *',
+              'Masukkan nomor telepon Anda',
+              Icons.phone_outlined,
             ),
+            keyboardType: TextInputType.phone,
+            maxLength: 12,
           ),
+          SizedBox(height: 16),
 
-          const SizedBox(height: 30),
-
-          // Register Button
-          // Completing the register button in auth_view.dart
-          // Register Button
+          // Gender
           Obx(
-            () => ElevatedButton(
-              onPressed: controller.isLoading.value
+            () => DropdownButtonFormField<String>(
+              value: controller.selectedGender.value.isEmpty
                   ? null
-                  : controller.register,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  : controller.selectedGender.value,
+              decoration: AppField.primaryField(
+                'Jenis Kelamin *',
+                'Pilih jenis kelamin Anda',
+                Icons.person_outline,
+              ),
+              items: controller.genderOptions.map((String gender) {
+                return DropdownMenuItem<String>(
+                  value: gender,
+                  child: Text(gender),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  controller.selectedGender.value = newValue;
+                }
+              },
+            ),
+          ),
+          SizedBox(height: 16),
+
+          // Birth Date
+          Obx(
+            () => InkWell(
+              onTap: () => controller.selectBirthDate(Get.context!),
+              child: InputDecorator(
+                decoration: AppField.primaryField(
+                  'Tanggal Lahir *',
+                  'Pilih tanggal lahir Anda',
+                  Icons.calendar_today_outlined,
+                ),
+                child: Text(
+                  controller.selectedBirthDate.value != null
+                      ? DateFormat(
+                          'dd/MM/yyyy',
+                        ).format(controller.selectedBirthDate.value!)
+                      : 'Pilih tanggal lahir anda',
                 ),
               ),
-              child: controller.isLoading.value
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Sign Up', style: TextStyle(fontSize: 16)),
+            ),
+          ),
+          SizedBox(height: 16),
+
+          // City
+          Obx(
+            () => Autocomplete<City>(
+              optionsBuilder: (TextEditingValue textEditingValue) {
+                final cities =
+                    Get.find<SplashController>().appData.value!.cities;
+                if (textEditingValue.text.isEmpty) {
+                  return cities;
+                }
+                return cities.where((City city) {
+                  final query = textEditingValue.text.toLowerCase();
+                  return ('${city.type} ${city.name}').toLowerCase().contains(
+                    query,
+                  );
+                });
+              },
+              displayStringForOption: (City city) =>
+                  '${city.type} ${city.name}',
+              initialValue: controller.selectedCity.value.isNotEmpty
+                  ? TextEditingValue(
+                      text:
+                          Get.find<SplashController>().appData.value!.cities
+                              .firstWhereOrNull(
+                                (c) => c.id == controller.selectedCity.value,
+                              )
+                              ?.let((c) => '${c.type} ${c.name}') ??
+                          '',
+                    )
+                  : const TextEditingValue(),
+              fieldViewBuilder:
+                  (
+                    context,
+                    textEditingController,
+                    focusNode,
+                    onFieldSubmitted,
+                  ) {
+                    return TextFormField(
+                      controller: textEditingController,
+                      focusNode: focusNode,
+                      decoration: AppField.primaryField(
+                        'Kota Tempat Tinggal *',
+                        'Pilih kota Anda',
+                        Icons.location_city_outlined,
+                      ),
+                      onChanged: (value) {
+                        // Optionally clear selectedCity if user clears input
+                        if (value.isEmpty) controller.selectedCity.value = '';
+                      },
+                    );
+                  },
+              onSelected: (City city) {
+                controller.selectedCity.value = city.id;
+              },
+              optionsViewBuilder: (context, onSelected, options) {
+                return Align(
+                  alignment: Alignment.topLeft,
+                  child: Material(
+                    elevation: 4.0,
+                    child: SizedBox(
+                      height: 200,
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: options.length,
+                        itemBuilder: (context, index) {
+                          final City city = options.elementAt(index);
+                          return ListTile(
+                            title: Text('${city.type} ${city.name}'),
+                            onTap: () => onSelected(city),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          SizedBox(height: 16),
+
+          // Address (Text Area)
+          TextFormField(
+            controller: controller.addressController,
+            decoration: AppField.primaryField(
+              'Alamat Anda *',
+              'Masukkan alamat Anda',
+              Icons.home,
+            ),
+            maxLines: 3,
+            textInputAction: TextInputAction.newline,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfessionalInfoStep() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        children: [
+          // Company Name
+          TextFormField(
+            controller: controller.companyNameController,
+            decoration: AppField.primaryField(
+              'Nama Perusahaan *',
+              'Masukkan nama perusahaan Anda',
+              Icons.business_outlined,
+            ),
+          ),
+          SizedBox(height: 16),
+
+          // NIP (Optional)
+          TextFormField(
+            controller: controller.nipController,
+            decoration: AppField.primaryField(
+              'NIP (Optional)',
+              'Masukkan NIP Anda',
+              Icons.badge_outlined,
+            ),
+            keyboardType: TextInputType.number,
+          ),
+          SizedBox(height: 16),
+
+          // Job
+          TextFormField(
+            controller: controller.jobController,
+            decoration: AppField.primaryField(
+              'Jenis Pekerjaan *',
+              'Masukkan jenis pekerjaan Anda',
+              Icons.work,
+            ),
+          ),
+          SizedBox(height: 16),
+
+          // Federation
+          Obx(
+            () => DropdownButtonFormField<String>(
+              isExpanded: true,
+              value: controller.selectedFederation.value.isEmpty
+                  ? null
+                  : controller.selectedFederation.value,
+              decoration: AppField.primaryField(
+                'Federasi *',
+                'Pilih federasi Anda',
+                Icons.group,
+              ),
+              items: Get.find<SplashController>().appData.value!.federations
+                  .map((Federation federation) {
+                    return DropdownMenuItem<String>(
+                      value: federation.idFederation,
+                      child: Text(federation.nameFederation),
+                    );
+                  })
+                  .toList(),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  controller.selectedFederation.value = newValue;
+                }
+              },
+            ),
+          ),
+          SizedBox(height: 16),
+
+          // DPC
+          Obx(
+            () => controller.dpcLoading.value && controller.level.value == null
+                ? CircularProgressIndicator()
+                : (controller.subLevelOptions.isNotEmpty
+                      ? Column(
+                          children: [
+                            DropdownButtonFormField<String>(
+                              isExpanded: true,
+                              value: controller.selectedDpc.value.isEmpty
+                                  ? null
+                                  : controller.selectedDpc.value,
+                              decoration: AppField.primaryField(
+                                '${controller.level.value == null ? 'DPC' : controller.level.value!.name} *',
+                                'Pilih ${controller.level.value == null ? 'DPC' : controller.level.value!.name} Anda',
+                                Icons.location_city,
+                              ),
+                              items: controller.subLevelOptions.map((
+                                SubLevel dpc,
+                              ) {
+                                return DropdownMenuItem<String>(
+                                  value: dpc.id.toString(),
+                                  child: Text(
+                                    '${controller.level.value == null ? "DPC" : controller.level.value!.name} ${dpc.name}',
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  controller.selectedDpc.value = newValue;
+                                }
+                              },
+                            ),
+                            SizedBox(height: 16),
+                          ],
+                        )
+                      : const SizedBox()),
+          ),
+
+          Obx(
+            () =>
+                controller.selectedFederation.value.isNotEmpty &&
+                    int.parse(controller.selectedFederation.value) < 0
+                ? Column(
+                    children: [
+                      Autocomplete<City>(
+                        optionsBuilder: (TextEditingValue textEditingValue) {
+                          final cities = Get.find<SplashController>()
+                              .appData
+                              .value!
+                              .cities;
+                          if (textEditingValue.text.isEmpty) {
+                            return cities;
+                          }
+                          return cities.where((City city) {
+                            final query = textEditingValue.text.toLowerCase();
+                            return ('${city.type} ${city.name}')
+                                .toLowerCase()
+                                .contains(query);
+                          });
+                        },
+                        displayStringForOption: (City city) =>
+                            '${city.type} ${city.name}',
+                        initialValue:
+                            controller.selectedOtherCity.value.isNotEmpty
+                            ? TextEditingValue(
+                                text:
+                                    Get.find<SplashController>()
+                                        .appData
+                                        .value!
+                                        .cities
+                                        .firstWhereOrNull(
+                                          (c) =>
+                                              c.id ==
+                                              controller
+                                                  .selectedOtherCity
+                                                  .value,
+                                        )
+                                        ?.let((c) => '${c.type} ${c.name}') ??
+                                    '',
+                              )
+                            : const TextEditingValue(),
+                        fieldViewBuilder:
+                            (
+                              context,
+                              textEditingController,
+                              focusNode,
+                              onFieldSubmitted,
+                            ) {
+                              return TextFormField(
+                                controller: textEditingController,
+                                focusNode: focusNode,
+                                decoration: AppField.primaryField(
+                                  'Kota/Kabupaten',
+                                  'Pilih kota Anda',
+                                  Icons.location_city_outlined,
+                                ),
+                                onChanged: (value) {
+                                  if (value.isEmpty) {
+                                    controller.selectedOtherCity.value = '';
+                                  }
+                                },
+                              );
+                            },
+                        onSelected: (City city) {
+                          controller.selectedOtherCity.value = city.id;
+                        },
+                        optionsViewBuilder: (context, onSelected, options) {
+                          return Align(
+                            alignment: Alignment.topLeft,
+                            child: Material(
+                              elevation: 4.0,
+                              child: SizedBox(
+                                height: 200,
+                                child: ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  itemCount: options.length,
+                                  itemBuilder: (context, index) {
+                                    final City city = options.elementAt(index);
+                                    return ListTile(
+                                      title: Text('${city.type} ${city.name}'),
+                                      onTap: () => onSelected(city),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBox(height: 16),
+                    ],
+                  )
+                : const SizedBox(),
+          ),
+          Obx(
+            () => controller.selectedFederation.value == "-3"
+                ? Column(
+                    children: [
+                      TextFormField(
+                        controller: controller.federationName,
+                        decoration: AppField.primaryField(
+                          'Nama Federasi *',
+                          'Masukkan nama federasi Anda',
+                          Icons.group,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                    ],
+                  )
+                : const SizedBox(),
+          ),
+          // KTA
+          TextFormField(
+            controller: controller.ktaController,
+            decoration: AppField.primaryField(
+              'KTA',
+              'Masukkan KTA Anda',
+              Icons.badge,
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildAccountInfoStep() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        children: [
+          // Password
+          Obx(
+            () => TextFormField(
+              controller: controller.passwordController,
+              obscureText: controller.isPasswordHidden.value,
+              decoration: AppField.primaryField(
+                'Kata Sandi *',
+                'Masukkan kata sandi Anda',
+                Icons.lock_outline,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    controller.isPasswordHidden.value
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                  ),
+                  onPressed: controller.togglePasswordRegVisibility,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 16),
+
+          // Confirm Password
+          Obx(
+            () => TextFormField(
+              controller: controller.confirmPasswordController,
+              obscureText: controller.isConfirmPasswordHidden.value,
+              decoration: AppField.primaryField(
+                'Konfirmasi Kata Sandi *',
+                'Masukkan konfirmasi kata sandi Anda',
+                Icons.lock_outline,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    controller.isConfirmPasswordHidden.value
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                  ),
+                  onPressed: controller.toggleConfirmPasswordVisibility,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 16),
+
+          // Terms and Conditions
+          Card(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Syarat dan Ketentuan',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Dengan mendaftar, Anda setuju dengan syarat dan ketentuan kami. Data Anda akan diproses sesuai dengan kebijakan privasi kami.',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+extension on City? {
+  String? let(String Function(dynamic c) param0) {
+    if (this == null) return null;
+    return param0(this);
   }
 }

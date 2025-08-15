@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:japbusi/app/data/models/grievance_model.dart';
 import 'package:japbusi/app/data/services/auth_service.dart';
 import 'package:japbusi/app/data/services/griveance_service.dart';
+import 'package:japbusi/app/utils/app_snackbar.dart';
 
 class GrievancesController extends GetxController {
   late GriveanceService _grievanceService;
@@ -39,7 +40,7 @@ class GrievancesController extends GetxController {
         await Get.find<AuthService>().logout();
       } else {
         print("Error fetching grievances: $e");
-        Get.snackbar("Error", "Failed to fetch grievances");
+        AppSnackbar.error("Terjadi Kesalahan", 'gagal mendapatkan list aduan');
       }
     } finally {
       isLoading = false;

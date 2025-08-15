@@ -6,9 +6,15 @@ class HomeProvider extends GetConnect {
     httpClient.baseUrl = 'https://smilecloud.id/japbusi2/api';
   }
 
-  Future<Response> articles(String? search, {int limit = 10}) async {
+  Future<Response> articles(
+    String? search, {
+    int page = 1,
+    int limit = 10,
+  }) async {
     search ??= '';
-    final response = await get('/articles?search=$search&limit=$limit');
+    final response = await get(
+      '/articles?search=$search&page=$page&limit=$limit',
+    );
     if (response.status.hasError) {
       throw Exception(response.statusText);
     }

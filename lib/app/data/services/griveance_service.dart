@@ -27,10 +27,17 @@ class GriveanceService extends GetxService {
     return grievances;
   }
 
-  Future<Griveance> getDetail(int nomor) async {
+  Future<Griveance> getDetail(String nomor) async {
     final response = await _grievanceProvider.grievance(nomor);
     if (response.status.hasError) {
-      throw Exception(response.statusText);
+      final messages = response.body['messages'] ?? [];
+      String error = '';
+      if (messages is Map) {
+        error = messages.values.first;
+      } else {
+        error = messages;
+      }
+      throw Exception(error);
     }
     Griveance grievance = Griveance.fromJson(
       Map<String, dynamic>.from(response.body),
@@ -38,11 +45,11 @@ class GriveanceService extends GetxService {
     return grievance;
   }
 
-  Future<int> submitGrievance(Map<String, dynamic> data) async {
+  Future<String> submitGrievance(Map<String, dynamic> data) async {
     final response = await _grievanceProvider.submitGrievance(data);
     if (response.status.hasError) {
       throw Exception(response.statusText);
     }
-    return response.body['nomor'] as int;
+    return response.body['nomor'] as String;
   }
 }

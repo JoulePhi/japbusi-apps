@@ -199,12 +199,18 @@ class DetailView extends GetView<DetailController> {
                                 ),
                               ),
                               const SizedBox(width: 8.0),
-                              Text(
-                                controller.grievanceDetail.value!.categoryName,
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
+                              Expanded(
+                                child: Text(
+                                  softWrap: true,
+                                  controller
+                                      .grievanceDetail
+                                      .value!
+                                      .categoryName,
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ),
                             ],

@@ -8,6 +8,7 @@ import 'package:japbusi/app/modules/home/controllers/home_controller.dart';
 import 'package:japbusi/app/routes/app_pages.dart';
 import 'package:japbusi/app/utils/app_colors.dart';
 import 'package:japbusi/app/utils/app_formatter.dart';
+import 'package:japbusi/app/utils/app_snackbar.dart';
 import 'package:japbusi/app/utils/app_text_styles.dart';
 
 class HomeTab extends GetView<HomeController> {
@@ -272,19 +273,14 @@ class HomeTab extends GetView<HomeController> {
                                     onPressed: () async {
                                       final result = await controller
                                           .submitGrievance();
-                                      if (result > 0) {
+                                      if (result.isNotEmpty) {
                                         Get.toNamed(
                                           Routes.DETAIL,
                                           arguments: {'nomor': result},
                                         );
-                                        Get.snackbar(
+                                        AppSnackbar.success(
                                           "Sukses",
                                           "Pengaduan berhasil dikirim",
-                                        );
-                                      } else {
-                                        Get.snackbar(
-                                          "Gagal",
-                                          "Pengaduan gagal dikirim",
                                         );
                                       }
                                     },

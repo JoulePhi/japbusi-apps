@@ -10,8 +10,16 @@ class HomeService extends GetxService {
     return this;
   }
 
-  Future<List<Article>> getArticles(String? search, {int limit = 10}) async {
-    final response = await _articleProvider.articles(search, limit: limit);
+  Future<List<Article>> getArticles(
+    String? search, {
+    int page = 1,
+    int limit = 10,
+  }) async {
+    final response = await _articleProvider.articles(
+      search,
+      page: page,
+      limit: limit,
+    );
     if (response.status.hasError) {
       throw Exception(response.statusText);
     }

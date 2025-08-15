@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:japbusi/app/data/auth_provider.dart';
+import 'package:japbusi/app/data/models/dpc_response.dart';
+import 'package:japbusi/app/data/models/register_request.dart';
 import '../models/user_model.dart';
 import '../models/auth_response_model.dart';
 
@@ -49,22 +51,6 @@ class AuthService extends GetxService {
     }
   }
 
-  Future<void> _saveAuthData(AuthResponse response) async {
-    _token.value = response.accessToken;
-    _user.value = response.user;
-    _isLoggedIn.value = true;
-
-    // Store in secure storage
-    print(
-      'Saving auth data: ${response.accessToken}, User: ${response.user.toJson()}',
-    );
-    await _storage.write(key: 'access_token', value: response.accessToken);
-    await _storage.write(
-      key: 'user',
-      value: jsonEncode(response.user.toJson()),
-    );
-  }
-
   Future<void> login(String email, String password) async {
     final response = await _authProvider.login(
       email,
@@ -74,15 +60,31 @@ class AuthService extends GetxService {
     await _saveAuthData(response);
   }
 
-  Future<void> register(String name, String email, String password) async {
-    final response = await _authProvider.register(name, email, password);
+  Future<void> _saveAuthData(AuthResponse response) async {
+    _token.value = response.accessToken;
+    _user.value = response.user;
+    _isLoggedIn.value = true;
+    await _storage.write(key: 'access_token', value: response.accessToken);
+    await _storage.write(
+      key: 'user',
+      value: jsonEncode(response.user.toJson()),
+    );
+  }
+
+  Future<DpcResponse> getDpc(int idFederation) async {
+    final response = await _authProvider.getDPC(idFederation);
+    return response;
+  }
+
+  Future<void> register(RegisterRequest request) async {
+    final response = await _authProvider.register(request, fcmToken: _fcmToken);
     await _saveAuthData(response);
   }
 
   Future<void> logout() async {
     if (_token.value.isNotEmpty) {
       try {
-        // await _authProvider.logout(_token.value);
+        await _authProvider.logout(_token.value);
       } catch (e) {
         print('Error during API logout: $e');
         // Continue with local logout even if API call fails

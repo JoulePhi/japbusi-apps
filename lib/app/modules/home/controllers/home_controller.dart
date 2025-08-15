@@ -7,6 +7,7 @@ import 'package:japbusi/app/data/models/article_model.dart';
 import 'package:japbusi/app/data/services/griveance_service.dart';
 import 'package:japbusi/app/data/services/home_service.dart';
 import 'package:japbusi/app/routes/app_pages.dart';
+import 'package:japbusi/app/utils/app_snackbar.dart';
 
 class HomeController extends GetxController {
   late GriveanceService _grievanceService;
@@ -35,7 +36,7 @@ class HomeController extends GetxController {
       articles.value = await _homeService.getArticles(search, limit: 5);
     } catch (e) {
       print("Error fetching articles: $e");
-      Get.snackbar("Error", "Failed to load articles: $e");
+      AppSnackbar.error("Terjadi Kesalahan", "gagal mendapatkan artikel");
     } finally {
       isArticleLoading.value = false;
     }
@@ -52,11 +53,7 @@ class HomeController extends GetxController {
         }
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to pick images: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppSnackbar.error("Terjadi Kesalahan", "gagal mendapatkan gambar");
     }
   }
 
@@ -70,13 +67,13 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<int> submitGrievance() async {
+  Future<String> submitGrievance() async {
     try {
-      if (isSubmitting.value) return 0; // Prevent multiple submissions
+      if (isSubmitting.value) return ''; // Prevent multiple submissions
       isSubmitting.value = true;
       if (descriptionController.text.isEmpty) {
-        Get.snackbar("Error", "Deskripsi tidak boleh kosong");
-        return 0;
+        AppSnackbar.error("Gagal Mengirim", "Deskripsi tidak boleh kosong");
+        return '';
       }
       Map<String, dynamic> data = {
         'description': descriptionController.text,
@@ -90,18 +87,17 @@ class HomeController extends GetxController {
             )
             .toList();
       }
+      String grievanceId = await _grievanceService.submitGrievance(data);
 
-      print("Submitting grievance with data: $data");
-      int grievanceId = await _grievanceService.submitGrievance(data);
+      clearImages();
+      descriptionController.clear();
       return grievanceId;
     } catch (e) {
       print("Error submitting grievance: $e");
-      Get.snackbar("Error", "Failed to submit grievance: $e");
-      return 0;
+      AppSnackbar.error("Terjadi Kesalahan", "gagal mengirim aduan");
+      return '';
     } finally {
       isSubmitting.value = false;
-      clearImages();
-      descriptionController.clear();
     }
   }
 }

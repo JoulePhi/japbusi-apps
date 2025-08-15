@@ -5,9 +5,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_file.dart';
+import 'package:japbusi/app/data/app_provider.dart';
 import 'package:japbusi/app/data/auth_provider.dart';
 import 'package:japbusi/app/data/griveance_provider.dart';
 import 'package:japbusi/app/data/home_provicer.dart';
+import 'package:japbusi/app/data/services/app_service.dart';
 import 'package:japbusi/app/data/services/auth_service.dart';
 import 'package:japbusi/app/data/services/griveance_service.dart';
 import 'package:japbusi/app/data/services/home_service.dart';
@@ -30,11 +32,10 @@ void _showLocalNotification(RemoteMessage message) async {
   if (notification != null && android != null) {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
-          'grievance_channel', // Update this
+          'grievance_channel',
           'Grievance Channel',
           importance: Importance.max,
           priority: Priority.high,
-          // other options...
         );
 
     const NotificationDetails platformChannelSpecifics = NotificationDetails(
@@ -96,10 +97,12 @@ void main() async {
 Future<void> initServices(String token) async {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {});
   await Get.putAsync(() => ApiClient().init());
+  Get.put(AppProvider());
   Get.lazyPut(() => AuthProvider());
   Get.lazyPut(() => GriveanceProvider());
   Get.lazyPut(() => HomeProvider());
 
+  await Get.putAsync(() => AppService().init());
   await Get.putAsync(() => AuthService().init(token));
   await Get.putAsync(() => GriveanceService().init());
   await Get.putAsync(() => HomeService().init());
