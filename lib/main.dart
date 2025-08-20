@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -21,15 +23,29 @@ import 'app/routes/app_pages.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
+@pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   _showLocalNotification(message);
 }
 
+Future<void> _onMessageOpenedApp(RemoteMessage message) async {
+  final type = message.data['type'];
+  final id = message.data['id'];
+
+  if (type != null && id != null) {
+    switch (type) {
+      case 'article':
+        Get.toNamed(Routes.ARTICLE, arguments: {"id": id});
+        break;
+    }
+  }
+}
+
 void _showLocalNotification(RemoteMessage message) async {
-  RemoteNotification? notification = message.notification;
-  AndroidNotification? android = message.notification?.android;
-  if (notification != null && android != null) {
+  String? title = message.data['title'];
+  String? body = message.data['body'];
+  if (title != null) {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
           'grievance_channel',
@@ -43,12 +59,26 @@ void _showLocalNotification(RemoteMessage message) async {
     );
 
     await flutterLocalNotificationsPlugin.show(
-      notification.hashCode, // unique ID
-      notification.title,
-      notification.body,
+      0, // unique ID
+      title,
+      body,
       platformChannelSpecifics,
-      payload: null,
+      payload: jsonEncode(message.data),
     );
+  }
+}
+
+void _handleMessageTap(RemoteMessage message) {
+  final type = message.data['type'];
+  final id = message.data['id'];
+  print("type: $type, id: $id");
+
+  if (type != null && id != null) {
+    switch (type) {
+      case 'article':
+        Get.toNamed(Routes.ARTICLE, arguments: {"id": id});
+        break;
+    }
   }
 }
 
@@ -71,18 +101,27 @@ void main() async {
     android: initializationSettingsAndroid,
   );
 
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse response) {
+      if (response.payload != null) {
+        Get.toNamed(Routes.ARTICLE, arguments: {"id": response.payload});
+      }
+    },
+  );
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     _showLocalNotification(message);
+  });
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    _handleMessageTap(message);
   });
 
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   String? token = await messaging.getToken();
-  // print("FCM Token: $token");
   await initServices(token ?? '');
+
   runApp(
     GetMaterialApp(
       title: "JAPBUSI",

@@ -13,7 +13,7 @@ class ArticleDetailController extends GetxController {
   void onInit() {
     super.onInit();
     _homeService = Get.find<HomeService>();
-    final int articleId = Get.arguments['id'];
+    final int articleId = int.parse(Get.arguments['id'].toString());
     fetchArticle(articleId);
   }
 

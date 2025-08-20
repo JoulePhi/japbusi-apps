@@ -1,10 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:japbusi/app/data/services/auth_service.dart';
 import 'package:japbusi/app/modules/home/controllers/home_controller.dart';
+import 'package:japbusi/app/modules/splash/controllers/splash_controller.dart';
 import 'package:japbusi/app/routes/app_pages.dart';
 import 'package:japbusi/app/utils/app_colors.dart';
 import 'package:japbusi/app/utils/app_formatter.dart';
@@ -87,40 +89,118 @@ class HomeTab extends GetView<HomeController> {
                       ],
                     ),
                     SizedBox(height: 40),
-                    AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Container(
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage('assets/banner.png'),
-                            fit: BoxFit.cover,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Bersama JAPBUSI Untuk Kerja Layak dan Bermartabat',
-                              style: AppTextStyles.white.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Laporkan masalah Andan dengan aman, depat dan terpercaya',
-                              style: AppTextStyles.white.copyWith(
-                                fontSize: 10,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
+                    CarouselSlider(
+                      options: CarouselOptions(
+                        aspectRatio: 16 / 9,
+                        viewportFraction: 1,
+                        enlargeCenterPage: true,
+                        autoPlay: true,
                       ),
+                      items: Get.find<SplashController>()
+                          .appData
+                          .value!
+                          .carousels
+                          .map((carousel) {
+                            return Container(
+                              margin: EdgeInsets.symmetric(horizontal: 5),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                image: DecorationImage(
+                                  image: CachedNetworkImageProvider(
+                                    carousel.foto,
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: EdgeInsets.all(16),
+                                alignment: carousel.choice == "center"
+                                    ? Alignment.center
+                                    : (carousel.choice == "left"
+                                          ? Alignment.centerLeft
+                                          : Alignment.centerRight),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: Align(
+                                        alignment: carousel.choice == "center"
+                                            ? Alignment.center
+                                            : (carousel.choice == "left"
+                                                  ? Alignment.centerLeft
+                                                  : Alignment.centerRight),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              carousel.choice == "center"
+                                              ? CrossAxisAlignment.center
+                                              : (carousel.choice == "left"
+                                                    ? CrossAxisAlignment.start
+                                                    : CrossAxisAlignment.end),
+                                          children: [
+                                            Text(
+                                              carousel.judul,
+                                              textAlign:
+                                                  carousel.choice == "center"
+                                                  ? TextAlign.center
+                                                  : (carousel.choice == "left"
+                                                        ? TextAlign.left
+                                                        : TextAlign.right),
+                                              style: AppTextStyles.white
+                                                  .copyWith(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                            ),
+                                            SizedBox(
+                                              width: double.infinity,
+                                              child: Align(
+                                                alignment:
+                                                    carousel.choice == "center"
+                                                    ? Alignment.center
+                                                    : (carousel.choice == "left"
+                                                          ? Alignment.centerLeft
+                                                          : Alignment
+                                                                .centerRight),
+                                                child: Html(
+                                                  data: carousel.deskripsi,
+                                                  style: {
+                                                    "*": Style(
+                                                      color: Colors.white,
+                                                      fontSize: FontSize(10),
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      textAlign:
+                                                          carousel.choice ==
+                                                              "center"
+                                                          ? TextAlign.center
+                                                          : (carousel.choice ==
+                                                                    "left"
+                                                                ? TextAlign.left
+                                                                : TextAlign
+                                                                      .right),
+                                                    ),
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          })
+                          .toList(),
                     ),
+
                     SizedBox(height: 40),
                     if (Get.find<AuthService>().user!.roleName == 'Pelapor')
                       Container(

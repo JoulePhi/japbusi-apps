@@ -2,6 +2,7 @@
 import 'package:get/get.dart';
 import 'package:japbusi/app/data/app_provider.dart';
 import 'package:japbusi/app/data/models/appdata_model.dart';
+import 'package:japbusi/app/data/models/carousel_model.dart';
 import 'package:japbusi/app/data/models/city_model.dart';
 import 'package:japbusi/app/data/models/federation_model.dart';
 import 'package:japbusi/app/data/models/province_model.dart';
@@ -21,6 +22,7 @@ class AppService extends GetxService {
     List<Province> provinces = [];
     List<City> cities = [];
     List<Federation> federations = [];
+    List<Carousel> carousels = [];
     if (response.body['provinces'] is List) {
       provinces = (response.body['provinces'] as List)
           .map((item) => Province.fromJson(Map<String, dynamic>.from(item)))
@@ -36,11 +38,17 @@ class AppService extends GetxService {
           .map((item) => Federation.fromJson(Map<String, dynamic>.from(item)))
           .toList();
     }
+    if (response.body['carousels'] is List) {
+      carousels = (response.body['carousels'] as List)
+          .map((item) => Carousel.fromJson(Map<String, dynamic>.from(item)))
+          .toList();
+    }
 
     return AppData(
       provinces: provinces,
       cities: cities,
       federations: federations,
+      carousels: carousels,
     );
   }
 }
