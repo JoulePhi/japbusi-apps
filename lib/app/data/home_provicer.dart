@@ -3,17 +3,21 @@ import 'package:get/get.dart';
 class HomeProvider extends GetConnect {
   @override
   void onInit() {
-    httpClient.baseUrl = 'https://smilecloud.id/japbusi2/api';
+    httpClient.baseUrl = 'https://japbusi.org/api';
   }
 
   Future<Response> articles(
     String? search, {
     int page = 1,
     int limit = 10,
+    String category = '0',
   }) async {
     search ??= '';
     final response = await get(
-      '/articles?search=$search&page=$page&limit=$limit',
+      '/articles?search=$search&page=$page&limit=$limit&category=$category',
+    );
+    print(
+      "Requested URL: ${httpClient.baseUrl}/articles?search=$search&page=$page&limit=$limit&category=$category",
     );
     if (response.status.hasError) {
       throw Exception(response.statusText);

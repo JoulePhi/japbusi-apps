@@ -2,8 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:japbusi/app/data/services/auth_service.dart';
 import 'package:japbusi/app/modules/home/controllers/article_controller.dart';
 import 'package:japbusi/app/modules/home/controllers/home_controller.dart';
+import 'package:japbusi/app/modules/splash/controllers/splash_controller.dart';
 import 'package:japbusi/app/routes/app_pages.dart';
 import 'package:japbusi/app/utils/app_colors.dart';
 import 'package:japbusi/app/utils/app_formatter.dart';
@@ -16,22 +18,49 @@ class ArticleTab extends GetView<ArticleController> {
       appBar: AppBar(
         backgroundColor: AppColors.successColor,
         centerTitle: false,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Get.back(),
-        ),
+
         title: Text(
           'Artikel',
           style: AppTextStyles.headline3.copyWith(color: Colors.white),
         ),
         actions: [
-          IconButton(
-            icon: FaIcon(
-              FontAwesomeIcons.solidBell,
-              color: Colors.white,
-              size: 20,
-            ),
-            onPressed: () {},
+          Stack(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Get.toNamed(Routes.NOTIFICATIONS);
+                },
+                icon: FaIcon(
+                  FontAwesomeIcons.solidBell,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+              // Badge
+              Obx(
+                () => Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: BoxConstraints(minWidth: 16, minHeight: 16),
+                    child: Text(
+                      Get.find<AuthService>().notifications.length.toString(),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -96,6 +125,56 @@ class ArticleTab extends GetView<ArticleController> {
               // add horizontal divider
               SizedBox(height: 10.0),
               Divider(color: AppColors.orangeColor, thickness: 1),
+              SizedBox(height: 16.0),
+              SizedBox(
+                width: double.infinity,
+                child: Obx(
+                  () => SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: Get.find<SplashController>()
+                          .appData
+                          .value!
+                          .articleCategories
+                          .map((entry) {
+                            final isSelected =
+                                controller.selectedTabIndex.value == entry.id;
+                            return GestureDetector(
+                              onTap: () {
+                                controller.selectedTabIndex.value = entry.id;
+                                controller.fetchArticles(null);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 10,
+                                ),
+                                margin: const EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? AppColors.primaryColor
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  entry.namaKategori,
+                                  style: AppTextStyles.body2.copyWith(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : AppColors.textSecondary,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            );
+                          })
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ),
               SizedBox(height: 16.0),
               Expanded(
                 child: Obx(

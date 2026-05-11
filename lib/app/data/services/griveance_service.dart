@@ -13,8 +13,11 @@ class GriveanceService extends GetxService {
     return this;
   }
 
-  Future<List<Griveance>> getGrievances(String? search) async {
-    final response = await _grievanceProvider.grievances(search);
+  Future<List<Griveance>> getGrievances(String? search, String status) async {
+    final response = await _grievanceProvider.grievances(
+      search,
+      status: status,
+    );
     if (response.status.hasError) {
       throw Exception(response.statusText);
     }
@@ -51,5 +54,12 @@ class GriveanceService extends GetxService {
       throw Exception(response.statusText);
     }
     return response.body['nomor'] as String;
+  }
+
+  Future<void> submitFeedback(Map<String, dynamic> data) async {
+    final response = await _grievanceProvider.submitFeedback(data);
+    if (response.status.hasError) {
+      throw Exception(response.statusText);
+    }
   }
 }

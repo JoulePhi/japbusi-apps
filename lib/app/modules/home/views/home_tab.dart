@@ -6,12 +6,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:japbusi/app/data/services/auth_service.dart';
 import 'package:japbusi/app/modules/home/controllers/home_controller.dart';
+import 'package:japbusi/app/modules/home/controllers/main_controller.dart';
 import 'package:japbusi/app/modules/splash/controllers/splash_controller.dart';
 import 'package:japbusi/app/routes/app_pages.dart';
 import 'package:japbusi/app/utils/app_colors.dart';
 import 'package:japbusi/app/utils/app_formatter.dart';
 import 'package:japbusi/app/utils/app_snackbar.dart';
 import 'package:japbusi/app/utils/app_text_styles.dart';
+import 'package:share_plus/share_plus.dart';
 
 class HomeTab extends GetView<HomeController> {
   @override
@@ -78,13 +80,47 @@ class HomeTab extends GetView<HomeController> {
                             ),
                           ],
                         ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: FaIcon(
-                            FontAwesomeIcons.solidBell,
-                            color: Colors.white,
-                            size: 22,
-                          ),
+                        Stack(
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                Get.toNamed(Routes.NOTIFICATIONS);
+                              },
+                              icon: FaIcon(
+                                FontAwesomeIcons.solidBell,
+                                color: Colors.white,
+                                size: 22,
+                              ),
+                            ),
+                            // Badge
+                            Obx(
+                              () => Positioned(
+                                right: 8,
+                                top: 8,
+                                child: Container(
+                                  padding: EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  constraints: BoxConstraints(
+                                    minWidth: 16,
+                                    minHeight: 16,
+                                  ),
+                                  child: Text(
+                                    Get.find<AuthService>().notifications.length
+                                        .toString(),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -203,154 +239,194 @@ class HomeTab extends GetView<HomeController> {
 
                     SizedBox(height: 40),
                     if (Get.find<AuthService>().user!.roleName == 'Pelapor')
-                      Container(
-                        padding: EdgeInsets.all(16),
-                        width: double.infinity,
-
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: AppColors.textSecondary.withOpacity(0.3),
-                            width: 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 10,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
+                      Text(
+                        'Apa yang ingin kamu ceritakan pada kami? kami siap bantu',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.headline2.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Kronologi Kejadian',
-                              style: AppTextStyles.headline2.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                              ),
+                      ),
+                    SizedBox(height: 20),
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      width: double.infinity,
+
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppColors.textSecondary.withOpacity(0.3),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Kronologi Kejadian',
+                            style: AppTextStyles.headline2.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
                             ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Cerita kamu sangat penting agar kami dapat membantu menyelesaikan pengaduanmu',
-                              style: AppTextStyles.caption.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.textPrimary,
-                              ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'Cerita kamu sangat penting agar kami dapat membantu menyelesaikan pengaduanmu',
+                            style: AppTextStyles.caption.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textPrimary,
                             ),
-                            SizedBox(height: 10),
-                            // text area for input
-                            TextField(
-                              maxLines: 4,
-                              controller: controller.descriptionController,
-                              decoration: InputDecoration(
-                                hintText: 'Deskripsi',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: AppColors.textSecondary.withOpacity(
-                                      0.3,
-                                    ),
-                                    width: 1,
+                          ),
+                          SizedBox(height: 10),
+                          // text area for input
+                          TextField(
+                            maxLines: 4,
+                            controller: controller.descriptionController,
+                            decoration: InputDecoration(
+                              hintText: 'Deskripsi',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: AppColors.textSecondary.withOpacity(
+                                    0.3,
                                   ),
+                                  width: 1,
                                 ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: AppColors.textSecondary,
-                                    width: 1,
-                                  ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: AppColors.textSecondary,
+                                  width: 1,
                                 ),
                               ),
                             ),
-                            SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          ),
+                          SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Dokumen Pendukung",
+                                style: AppTextStyles.headline3.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  shape: CircleBorder(),
+                                  padding: EdgeInsets.all(2),
+                                  backgroundColor: AppColors.successColor,
+                                ),
+                                onPressed: () {
+                                  controller.pickMultipleImages();
+                                },
+                                child: FaIcon(FontAwesomeIcons.plus, size: 12),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 15),
+                          Obx(
+                            () => controller.selectedImages.isNotEmpty
+                                ? Wrap(
+                                    spacing: 8.0,
+                                    runSpacing: 8.0,
+                                    children: controller.selectedImages.map((
+                                      image,
+                                    ) {
+                                      return Stack(
+                                        children: [
+                                          Container(
+                                            width: 80,
+                                            height: 80,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              image: DecorationImage(
+                                                image: FileImage(image),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 4,
+                                            right: 4,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                controller.selectedImages
+                                                    .remove(image);
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.errorColor,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                padding: EdgeInsets.all(4),
+                                                child: Icon(
+                                                  Icons.close,
+                                                  color: Colors.white,
+                                                  size: 16,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }).toList(),
+                                  )
+                                : SizedBox.shrink(),
+                          ),
+                          SizedBox(height: 15),
+                          Obx(
+                            () => Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Text(
-                                  "Dokumen Pendukung",
-                                  style: AppTextStyles.headline3.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
                                 ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    shape: CircleBorder(),
-                                    padding: EdgeInsets.all(2),
-                                    backgroundColor: AppColors.successColor,
-                                  ),
-                                  onPressed: () {
-                                    controller.pickMultipleImages();
-                                  },
-                                  child: FaIcon(
-                                    FontAwesomeIcons.plus,
-                                    size: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 15),
-                            Obx(
-                              () => controller.selectedImages.isNotEmpty
-                                  ? Wrap(
-                                      spacing: 8.0,
-                                      runSpacing: 8.0,
-                                      children: controller.selectedImages.map((
-                                        image,
-                                      ) {
-                                        return Stack(
-                                          children: [
-                                            Container(
-                                              width: 80,
-                                              height: 80,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                image: DecorationImage(
-                                                  image: FileImage(image),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                            ),
-                                            Positioned(
-                                              top: 4,
-                                              right: 4,
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  controller.selectedImages
-                                                      .remove(image);
-                                                },
-                                                child: Container(
-                                                  decoration: BoxDecoration(
+                                  onPressed: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: Text('Konfirmasi'),
+                                        content: Text(
+                                          'Apakah Anda yakin ingin mengirim pengaduan?',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(ctx).pop(false),
+                                            child: Text(
+                                              'Batal',
+                                              style: AppTextStyles.button
+                                                  .copyWith(
                                                     color: AppColors.errorColor,
-                                                    shape: BoxShape.circle,
                                                   ),
-                                                  padding: EdgeInsets.all(4),
-                                                  child: Icon(
-                                                    Icons.close,
-                                                    color: Colors.white,
-                                                    size: 16,
-                                                  ),
-                                                ),
-                                              ),
                                             ),
-                                          ],
-                                        );
-                                      }).toList(),
-                                    )
-                                  : SizedBox.shrink(),
-                            ),
-                            SizedBox(height: 15),
-                            Obx(
-                              () => Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () async {
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () =>
+                                                Navigator.of(ctx).pop(true),
+                                            child: Text(
+                                              'Kirim',
+                                              style: AppTextStyles.button
+                                                  .copyWith(
+                                                    color: Colors.white,
+                                                  ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirm == true) {
                                       final result = await controller
                                           .submitGrievance();
                                       if (result.isNotEmpty) {
@@ -363,34 +439,34 @@ class HomeTab extends GetView<HomeController> {
                                           "Pengaduan berhasil dikirim",
                                         );
                                       }
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primaryColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 12,
-                                        horizontal: 20,
-                                      ),
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primaryColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                    child: controller.isSubmitting.value
-                                        ? CircularProgressIndicator()
-                                        : Text(
-                                            'Kirim Pengaduan',
-                                            style: AppTextStyles.button
-                                                .copyWith(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                          ),
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 20,
+                                    ),
                                   ),
-                                ],
-                              ),
+                                  child: controller.isSubmitting.value
+                                      ? CircularProgressIndicator()
+                                      : Text(
+                                          'Kirim Pengaduan',
+                                          style: AppTextStyles.button.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                    ),
                     SizedBox(height: 40),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -404,7 +480,13 @@ class HomeTab extends GetView<HomeController> {
                         ),
                         TextButton(
                           onPressed: () {
-                            Get.toNamed('/grievances', id: 1);
+                            Get.find<MainController>().switchTab(2);
+                            Get.find<MainController>().pageController
+                                .animateToPage(
+                                  2,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.ease,
+                                );
                           },
                           child: Text(
                             'Lihat Semua',
@@ -564,7 +646,12 @@ class HomeTab extends GetView<HomeController> {
                                 SizedBox(height: 10),
                                 ElevatedButton(
                                   onPressed: () {
-                                    // Handle contact action
+                                    SharePlus.instance.share(
+                                      ShareParams(
+                                        text:
+                                            "Unduh aplikasi japbusi di: https://play.google.com/store/apps/details?id=com.rdpl.japbusi.japbusi&pcampaignid=web_share",
+                                      ),
+                                    );
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColors.orangeColor,

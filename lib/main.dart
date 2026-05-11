@@ -17,6 +17,7 @@ import 'package:japbusi/app/data/services/griveance_service.dart';
 import 'package:japbusi/app/data/services/home_service.dart';
 import 'package:japbusi/app/utils/api_client.dart';
 import 'package:japbusi/app/utils/app_theme.dart';
+import 'package:japbusi/app/utils/handle_payload.dart';
 
 import 'app/routes/app_pages.dart';
 
@@ -35,8 +36,8 @@ Future<void> _onMessageOpenedApp(RemoteMessage message) async {
 
   if (type != null && id != null) {
     switch (type) {
-      case 'article':
-        Get.toNamed(Routes.ARTICLE, arguments: {"id": id});
+      case 'grievances':
+        Get.toNamed(Routes.DETAIL, arguments: id.toString());
         break;
     }
   }
@@ -71,12 +72,11 @@ void _showLocalNotification(RemoteMessage message) async {
 void _handleMessageTap(RemoteMessage message) {
   final type = message.data['type'];
   final id = message.data['id'];
-  print("type: $type, id: $id");
 
   if (type != null && id != null) {
     switch (type) {
-      case 'article':
-        Get.toNamed(Routes.ARTICLE, arguments: {"id": id});
+      case 'grievances':
+        Get.toNamed(Routes.DETAIL, arguments: id.toString());
         break;
     }
   }
@@ -105,13 +105,14 @@ void main() async {
     initializationSettings,
     onDidReceiveNotificationResponse: (NotificationResponse response) {
       if (response.payload != null) {
-        Get.toNamed(Routes.ARTICLE, arguments: {"id": response.payload});
+        handlePayload(response.payload);
       }
     },
   );
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    Get.find<AuthService>().getNotifications();
     _showLocalNotification(message);
   });
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {

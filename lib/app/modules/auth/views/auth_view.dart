@@ -6,6 +6,7 @@ import 'package:japbusi/app/data/models/city_model.dart';
 import 'package:japbusi/app/data/models/federation_model.dart';
 import 'package:japbusi/app/data/models/sublevel_model.dart';
 import 'package:japbusi/app/modules/splash/controllers/splash_controller.dart';
+import 'package:japbusi/app/routes/app_pages.dart';
 import 'package:japbusi/app/utils/app_colors.dart';
 import 'package:japbusi/app/utils/app_field.dart';
 import 'package:japbusi/app/utils/app_text_styles.dart';
@@ -159,7 +160,7 @@ class AuthView extends GetView<AuthController> {
             child: TextButton(
               onPressed: () {
                 // Navigate to forgot password
-                Get.toNamed('/auth/forgot-password');
+                Get.toNamed(Routes.FORGOT_PASSWORD);
               },
               child: Text(
                 'Lupa Kata Sandi?',
@@ -204,6 +205,17 @@ class AuthView extends GetView<AuthController> {
           controlsBuilder: (BuildContext context, ControlsDetails details) {
             return Row(
               children: [
+                if (details.stepIndex > 0)
+                  ElevatedButton(
+                    onPressed: controller.previousStep,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.orangeColor,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text('Kembali', style: AppTextStyles.button),
+                  ),
+
+                SizedBox(width: 8),
                 if (details.stepIndex < 2)
                   ElevatedButton(
                     onPressed: controller.nextStep,
@@ -219,16 +231,6 @@ class AuthView extends GetView<AuthController> {
                           ? CircularProgressIndicator(color: Colors.white)
                           : Text('Daftar'),
                     ),
-                  ),
-                SizedBox(width: 8),
-                if (details.stepIndex > 0)
-                  ElevatedButton(
-                    onPressed: controller.previousStep,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.orangeColor,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: Text('Kembali', style: AppTextStyles.button),
                   ),
               ],
             );

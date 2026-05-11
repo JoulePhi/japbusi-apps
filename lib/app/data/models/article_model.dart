@@ -2,6 +2,7 @@ import 'dart:convert';
 
 class Article {
   final String title;
+  final String slug;
   final String author;
   final DateTime createdAt;
   final int id;
@@ -14,6 +15,7 @@ class Article {
     required this.createdAt,
     required this.id,
     required this.thumbnail,
+    required this.slug,
     this.content,
   });
 
@@ -24,6 +26,7 @@ class Article {
     int? id,
     String? thumbnail,
     String? content,
+    String? slug,
   }) => Article(
     title: title ?? this.title,
     author: author ?? this.author,
@@ -31,6 +34,7 @@ class Article {
     id: id ?? this.id,
     thumbnail: thumbnail ?? this.thumbnail,
     content: content ?? this.content,
+    slug: slug ?? this.slug,
   );
 
   factory Article.fromRawJson(String str) => Article.fromJson(json.decode(str));
@@ -44,6 +48,7 @@ class Article {
     id: json["id"],
     thumbnail: json["thumbnail"],
     content: json["content"], // Optional field, can be null
+    slug: json["slug"] ?? '',
   );
 
   Map<String, dynamic> toJson() => {
@@ -53,5 +58,6 @@ class Article {
     "id": id,
     "thumbnail": thumbnail,
     "content": content, // Optional field, can be null
+    "slug": slug,
   };
 }

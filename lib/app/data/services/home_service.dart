@@ -14,11 +14,13 @@ class HomeService extends GetxService {
     String? search, {
     int page = 1,
     int limit = 10,
+    String category = '0',
   }) async {
     final response = await _articleProvider.articles(
       search,
       page: page,
       limit: limit,
+      category: category,
     );
     if (response.status.hasError) {
       throw Exception(response.statusText);

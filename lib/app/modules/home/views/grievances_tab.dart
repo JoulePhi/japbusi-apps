@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:japbusi/app/data/services/auth_service.dart';
 import 'package:japbusi/app/modules/home/controllers/grievances_controller.dart';
 import 'package:japbusi/app/modules/home/controllers/home_controller.dart';
 import 'package:japbusi/app/routes/app_pages.dart';
@@ -16,22 +17,49 @@ class GrievancesTab extends GetView<GrievancesController> {
       appBar: AppBar(
         backgroundColor: AppColors.successColor,
         centerTitle: false,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Get.back(),
-        ),
+
         title: Text(
           'Pengaduan Saya',
           style: AppTextStyles.headline3.copyWith(color: Colors.white),
         ),
         actions: [
-          IconButton(
-            icon: FaIcon(
-              FontAwesomeIcons.solidBell,
-              color: Colors.white,
-              size: 20,
-            ),
-            onPressed: () {},
+          Stack(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Get.toNamed(Routes.NOTIFICATIONS);
+                },
+                icon: FaIcon(
+                  FontAwesomeIcons.solidBell,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+              // Badge
+              Obx(
+                () => Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: BoxConstraints(minWidth: 16, minHeight: 16),
+                    child: Text(
+                      Get.find<AuthService>().notifications.length.toString(),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -96,12 +124,56 @@ class GrievancesTab extends GetView<GrievancesController> {
               // add horizontal divider
               SizedBox(height: 10.0),
               Divider(color: AppColors.orangeColor, thickness: 1),
+              SizedBox(
+                width: double.infinity,
+                child: Obx(
+                  () => SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: controller.tabs.entries.map((entry) {
+                        final isSelected =
+                            controller.selectedTabIndex.value == entry.key;
+                        return GestureDetector(
+                          onTap: () {
+                            controller.selectedTabIndex.value = entry.key;
+                            controller.fetchGrievances();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 10,
+                            ),
+                            margin: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primaryColor
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              entry.value,
+                              style: AppTextStyles.body2.copyWith(
+                                color: isSelected
+                                    ? Colors.white
+                                    : AppColors.textSecondary,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ),
               SizedBox(height: 16.0),
               GetBuilder<GrievancesController>(
                 init: GrievancesController(),
                 initState: (_) {
                   // Fetch grievances when the controller is initialized
-                  controller.fetchGrievances(null);
+                  controller.fetchGrievances();
                 },
                 builder: (c) {
                   // Ensure grievances are fetched
@@ -125,7 +197,7 @@ class GrievancesTab extends GetView<GrievancesController> {
                   return Expanded(
                     child: RefreshIndicator(
                       onRefresh: () {
-                        c.fetchGrievances(null);
+                        c.fetchGrievances();
                         return Future.value();
                       },
                       child: ListView.builder(

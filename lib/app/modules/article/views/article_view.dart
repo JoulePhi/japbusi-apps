@@ -18,6 +18,14 @@ class ArticleView extends GetView<ArticleDetailController> {
         title: const Text('Detail Artikel'),
         centerTitle: true,
         backgroundColor: AppColors.successColor,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.share),
+            onPressed: () {
+              controller.shareArticle();
+            },
+          ),
+        ],
       ),
       body: Obx(
         () => controller.isArticleLoading.value

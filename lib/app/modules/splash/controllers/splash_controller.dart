@@ -5,22 +5,12 @@ import 'package:get/get.dart';
 import 'package:japbusi/app/data/models/appdata_model.dart';
 import 'package:japbusi/app/data/services/app_service.dart';
 import 'package:japbusi/app/routes/app_pages.dart';
+import 'package:japbusi/app/utils/handle_payload.dart';
 import 'package:japbusi/main.dart';
 
 class SplashController extends GetxController {
   final AppService _apiService = Get.find<AppService>();
   final Rx<AppData?> appData = Rx<AppData?>(null);
-
-  void _handlePayload(String? payload) {
-    if (payload != null) {
-      final data = jsonDecode(payload);
-      switch (data['type']) {
-        case 'article':
-          Get.toNamed(Routes.ARTICLE, arguments: {"id": data['id']});
-          break;
-      }
-    }
-  }
 
   @override
   void onInit() async {
@@ -37,15 +27,17 @@ class SplashController extends GetxController {
 
       if (launchDetails?.didNotificationLaunchApp ?? false) {
         if (launchDetails?.notificationResponse != null) {
-          _handlePayload(launchDetails!.notificationResponse!.payload);
+          print("Payload: ${launchDetails!.notificationResponse!.payload}");
+          handlePayload(launchDetails!.notificationResponse!.payload);
         } else {
           Get.offAllNamed(Routes.HOME);
         }
       } else {
         Get.offAllNamed(Routes.HOME);
       }
-    } catch (e) {
+    } catch (e, trace) {
       print('Error fetching app data: $e');
+      print('Stack trace: $trace');
     }
   }
 }

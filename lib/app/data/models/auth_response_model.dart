@@ -1,5 +1,7 @@
 // lib/app/data/models/auth_response_model.dart
+
 import 'user_model.dart';
+import 'notification.dart';
 
 class AuthResponse {
   final String accessToken;

@@ -46,6 +46,7 @@ class HomeView extends GetView<MainController> {
         () => BottomNavigationBar(
           backgroundColor: Colors.white,
           currentIndex: controller.selectedMenu.value,
+
           onTap: (index) {
             controller.switchTab(index);
             controller.pageController.animateToPage(
@@ -54,7 +55,7 @@ class HomeView extends GetView<MainController> {
               curve: Curves.ease,
             );
           },
-          type: BottomNavigationBarType.shifting,
+          type: BottomNavigationBarType.fixed,
           useLegacyColorScheme: false,
           selectedItemColor: AppColors.successColor,
           unselectedItemColor: AppColors.successColor.withAlpha(153),

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -23,6 +24,7 @@ class TimelineL extends GetView<DetailController> {
                       ) {
                         final index = entry.key;
                         final reply = entry.value;
+
                         final isLast =
                             index ==
                             controller.grievanceDetail.value!.replies!.length -
@@ -56,10 +58,17 @@ class TimelineL extends GetView<DetailController> {
                                   borderRadius: BorderRadius.circular(8),
                                   onTap: () async {
                                     // shows bottom sheet with reply details
+                                    controller.selectedReplyId.value = reply;
+                                    controller.descriptionController.text =
+                                        reply.feedbacks.isNotEmpty
+                                        ? reply.feedbacks.last.description
+                                        : '';
+
                                     var res = await Get.bottomSheet(
                                       Container(
                                         padding: EdgeInsets.all(16),
                                         width: Get.width,
+                                        height: Get.height * 0.75,
                                         decoration: BoxDecoration(
                                           color: Colors.white,
                                           border: Border(
@@ -77,173 +86,309 @@ class TimelineL extends GetView<DetailController> {
                                             top: Radius.circular(16),
                                           ),
                                         ),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                AppFormatter.getStepIcon(
-                                                  int.parse(reply.step),
-                                                ),
-                                                SizedBox(width: 8),
-                                                Expanded(
-                                                  child: SizedBox(
-                                                    child: Text(
-                                                      AppFormatter.formatStep(
-                                                        int.parse(reply.step),
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  AppFormatter.getStepIcon(
+                                                    int.parse(reply.step),
+                                                  ),
+                                                  SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: SizedBox(
+                                                      child: Text(
+                                                        AppFormatter.formatStep(
+                                                          int.parse(reply.step),
+                                                        ),
+                                                        softWrap: true,
+                                                        style: AppTextStyles
+                                                            .caption
+                                                            .copyWith(
+                                                              color:
+                                                                  AppColors
+                                                                      .replyColors[int.parse(
+                                                                    reply.step,
+                                                                  )],
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 14,
+                                                            ),
                                                       ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 10.0),
+                                              Row(
+                                                children: [
+                                                  FaIcon(
+                                                    FontAwesomeIcons.user,
+                                                    size: 10,
+                                                    color:
+                                                        AppColors.textSecondary,
+                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Expanded(
+                                                    child: Text(
+                                                      '${reply.user!.name} | ${AppFormatter.formatDateTime(reply.createdAt)}',
                                                       softWrap: true,
                                                       style: AppTextStyles
                                                           .caption
                                                           .copyWith(
-                                                            color:
-                                                                AppColors
-                                                                    .replyColors[int.parse(
-                                                                  reply.step,
-                                                                )],
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 14,
+                                                            color: AppColors
+                                                                .textSecondary,
                                                           ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(height: 10.0),
-                                            Row(
-                                              children: [
-                                                FaIcon(
-                                                  FontAwesomeIcons.user,
-                                                  size: 10,
-                                                  color:
-                                                      AppColors.textSecondary,
-                                                ),
-                                                SizedBox(width: 10),
+                                                ],
+                                              ),
+                                              if (reply.feedback == '1' &&
+                                                  reply.feedbackCount == '0')
                                                 Text(
-                                                  '${reply.user!.name} | ${AppFormatter.formatDateTime(reply.createdAt)}',
+                                                  'Balasan ini membutuhkan feedback ${reply.feedbackCount}',
+                                                  style: AppTextStyles.caption
+                                                      .copyWith(
+                                                        color: Colors.redAccent,
+                                                      ),
+                                                ),
+                                              if (reply.feedback == '1' &&
+                                                  reply.feedbackCount != '0')
+                                                Text(
+                                                  'Balasan ini sudah mendapatkan feedback anda',
                                                   style: AppTextStyles.caption
                                                       .copyWith(
                                                         color: AppColors
-                                                            .textSecondary,
+                                                            .successAccentColor,
                                                       ),
                                                 ),
-                                              ],
-                                            ),
-                                            if (reply.feedback == '1')
-                                              Text(
-                                                'Balasan ini membutuhkan feedback',
-                                                style: AppTextStyles.caption
-                                                    .copyWith(
-                                                      color: Colors.redAccent,
+                                              SizedBox(height: 20.0),
+                                              Container(
+                                                padding: EdgeInsets.all(10.0),
+                                                decoration: BoxDecoration(
+                                                  color: AppColors
+                                                      .textPurpleAccent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                child: Html(
+                                                  data: reply.answer.isEmpty
+                                                      ? 'Tidak ada jawaban'
+                                                      : reply.answer,
+                                                  style: {
+                                                    "body": Style(
+                                                      color:
+                                                          AppColors.textPrimary,
+                                                      fontSize: FontSize(14),
                                                     ),
+                                                  },
+                                                ),
                                               ),
-                                            SizedBox(height: 20.0),
-                                            Container(
-                                              padding: EdgeInsets.all(10.0),
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    AppColors.textPurpleAccent,
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: Html(
-                                                data: reply.answer.isEmpty
-                                                    ? 'Tidak ada jawaban'
-                                                    : reply.answer,
-                                                style: {
-                                                  "body": Style(
-                                                    color:
-                                                        AppColors.textPrimary,
-                                                    fontSize: FontSize(14),
-                                                  ),
-                                                },
-                                              ),
-                                            ),
-                                            if (reply.feedback == '1')
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  SizedBox(height: 20.0),
-                                                  TextField(
-                                                    maxLines: 4,
-                                                    decoration: InputDecoration(
-                                                      hintText: 'Feedback Anda',
-                                                      border: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              10,
-                                                            ),
-                                                        borderSide: BorderSide(
-                                                          color: AppColors
-                                                              .textSecondary
-                                                              .withOpacity(0.3),
-                                                          width: .5,
+                                              if (reply.feedback == '1')
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(height: 20.0),
+                                                    TextField(
+                                                      controller: controller
+                                                          .descriptionController,
+                                                      readOnly: reply
+                                                          .feedbacks
+                                                          .isNotEmpty,
+                                                      maxLines: 4,
+                                                      decoration: InputDecoration(
+                                                        hintText:
+                                                            'Feedback Anda',
+                                                        border: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                10,
+                                                              ),
+                                                          borderSide: BorderSide(
+                                                            color: AppColors
+                                                                .textSecondary
+                                                                .withOpacity(
+                                                                  0.3,
+                                                                ),
+                                                            width: .5,
+                                                          ),
+                                                        ),
+                                                        focusedBorder: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                10,
+                                                              ),
+                                                          borderSide: BorderSide(
+                                                            color: AppColors
+                                                                .textSecondary,
+                                                            width: .5,
+                                                          ),
                                                         ),
                                                       ),
-                                                      focusedBorder: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              10,
-                                                            ),
-                                                        borderSide: BorderSide(
-                                                          color: AppColors
-                                                              .textSecondary,
-                                                          width: .5,
-                                                        ),
-                                                      ),
                                                     ),
-                                                  ),
-                                                  SizedBox(height: 10.0),
-                                                  // add pick images button
-                                                  Obx(
-                                                    () =>
-                                                        controller
-                                                            .selectedImages
-                                                            .isNotEmpty
-                                                        ? Wrap(
-                                                            spacing: 8.0,
-                                                            runSpacing: 8.0,
-                                                            children: controller.selectedImages.map((
-                                                              image,
-                                                            ) {
-                                                              return Container(
-                                                                width: 80,
-                                                                height: 80,
-                                                                decoration: BoxDecoration(
-                                                                  borderRadius:
-                                                                      BorderRadius.circular(
-                                                                        8,
-                                                                      ),
-                                                                  image: DecorationImage(
-                                                                    image:
-                                                                        FileImage(
-                                                                          image,
+                                                    SizedBox(height: 10.0),
+                                                    // add pick images button
+                                                    Obx(
+                                                      () =>
+                                                          controller
+                                                              .selectedImages
+                                                              .isNotEmpty
+                                                          ? Wrap(
+                                                              spacing: 8.0,
+                                                              runSpacing: 8.0,
+                                                              children: controller.selectedImages.map((
+                                                                image,
+                                                              ) {
+                                                                return Stack(
+                                                                  children: [
+                                                                    Container(
+                                                                      width: 80,
+                                                                      height:
+                                                                          80,
+                                                                      decoration: BoxDecoration(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(
+                                                                              8,
+                                                                            ),
+                                                                        image: DecorationImage(
+                                                                          image: FileImage(
+                                                                            image,
+                                                                          ),
+                                                                          fit: BoxFit
+                                                                              .cover,
                                                                         ),
-                                                                    fit: BoxFit
-                                                                        .cover,
+                                                                      ),
+                                                                    ),
+                                                                    Positioned(
+                                                                      top: 4,
+                                                                      right: 4,
+                                                                      child: GestureDetector(
+                                                                        onTap: () {
+                                                                          controller.selectedImages.remove(
+                                                                            image,
+                                                                          );
+                                                                        },
+                                                                        child: Container(
+                                                                          decoration: BoxDecoration(
+                                                                            color:
+                                                                                AppColors.errorColor,
+                                                                            shape:
+                                                                                BoxShape.circle,
+                                                                          ),
+                                                                          padding:
+                                                                              EdgeInsets.all(
+                                                                                4,
+                                                                              ),
+                                                                          child: Icon(
+                                                                            Icons.close,
+                                                                            color:
+                                                                                Colors.white,
+                                                                            size:
+                                                                                16,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                );
+                                                              }).toList(),
+                                                            )
+                                                          : SizedBox.shrink(),
+                                                    ),
+                                                    Wrap(
+                                                      spacing: 8.0,
+                                                      runSpacing: 8.0,
+                                                      children:
+                                                          reply
+                                                              .feedbacks
+                                                              .isNotEmpty
+                                                          ? reply.feedbacks.last.files.map((
+                                                              feedback,
+                                                            ) {
+                                                              return GestureDetector(
+                                                                onTap: () {
+                                                                  controller
+                                                                      .viewImage(
+                                                                        feedback
+                                                                            .url,
+                                                                      );
+                                                                },
+                                                                child: Container(
+                                                                  width: 80,
+                                                                  height: 80,
+                                                                  decoration: BoxDecoration(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                          8,
+                                                                        ),
+                                                                    image: DecorationImage(
+                                                                      image: CachedNetworkImageProvider(
+                                                                        feedback
+                                                                            .url,
+                                                                      ),
+                                                                      fit: BoxFit
+                                                                          .cover,
+                                                                    ),
                                                                   ),
                                                                 ),
                                                               );
-                                                            }).toList(),
-                                                          )
-                                                        : SizedBox.shrink(),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      controller
-                                                          .pickMultipleImages();
-                                                    },
-                                                    child: Text('Pilih Gambar'),
-                                                  ),
-                                                ],
-                                              ),
-                                          ],
+                                                            }).toList()
+                                                          : [SizedBox.shrink()],
+                                                    ),
+                                                    SizedBox(height: 10.0),
+                                                    if (reply.feedbackCount ==
+                                                        '0')
+                                                      Row(
+                                                        children: [
+                                                          ElevatedButton(
+                                                            onPressed: () {
+                                                              controller
+                                                                  .pickMultipleImages();
+                                                            },
+                                                            child: Text(
+                                                              'Pilih Gambar',
+                                                            ),
+                                                          ),
+                                                          const Spacer(),
+                                                          Obx(
+                                                            () =>
+                                                                controller
+                                                                    .selectedImages
+                                                                    .isEmpty
+                                                                ? SizedBox.shrink()
+                                                                : ElevatedButton(
+                                                                    style: ElevatedButton.styleFrom(
+                                                                      backgroundColor:
+                                                                          AppColors
+                                                                              .successAccentColor,
+                                                                    ),
+                                                                    onPressed: () {
+                                                                      controller
+                                                                          .submitFeedback();
+                                                                    },
+                                                                    child: Text(
+                                                                      controller
+                                                                              .isSubmitting
+                                                                              .value
+                                                                          ? 'Mengirim...'
+                                                                          : 'Kirim Feedback',
+                                                                    ),
+                                                                  ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                  ],
+                                                ),
+                                            ],
+                                          ),
                                         ),
                                       ),
+                                      isScrollControlled: true,
                                     );
                                     controller.selectedImages.clear();
                                   },
@@ -316,18 +461,22 @@ class TimelineL extends GetView<DetailController> {
                                               color: AppColors.textSecondary,
                                             ),
                                             SizedBox(width: 10),
-                                            Text(
-                                              '${reply.user!.name} | ${AppFormatter.formatDateTime(reply.createdAt)}',
-                                              style: AppTextStyles.caption
-                                                  .copyWith(
-                                                    color:
-                                                        AppColors.textSecondary,
-                                                  ),
+                                            Expanded(
+                                              child: Text(
+                                                '${reply.user!.name} | ${AppFormatter.formatDateTime(reply.createdAt)}',
+                                                softWrap: true,
+                                                style: AppTextStyles.caption
+                                                    .copyWith(
+                                                      color: AppColors
+                                                          .textSecondary,
+                                                    ),
+                                              ),
                                             ),
                                           ],
                                         ),
                                         SizedBox(height: 10.0),
-                                        if (reply.feedback == '1')
+                                        if (reply.feedback == '1' &&
+                                            reply.feedbackCount == '0')
                                           Text(
                                             'Balasan ini membutuhkan feedback',
                                             style: AppTextStyles.caption
@@ -335,12 +484,23 @@ class TimelineL extends GetView<DetailController> {
                                                   color: Colors.redAccent,
                                                 ),
                                           ),
+                                        if (reply.feedback == '1' &&
+                                            reply.feedbackCount != '0')
+                                          Text(
+                                            'Balasan ini sudah mendapatkan feedback anda',
+                                            style: AppTextStyles.caption
+                                                .copyWith(
+                                                  color: AppColors
+                                                      .successAccentColor,
+                                                ),
+                                          ),
                                       ],
                                     ),
                                   ),
                                 ),
                                 // Badge with plus icon
-                                if (reply.feedback == '1')
+                                if (reply.feedback == '1' &&
+                                    reply.feedbackCount == '0')
                                   Positioned(
                                     top: 0,
                                     right: 0,
@@ -352,6 +512,24 @@ class TimelineL extends GetView<DetailController> {
                                       ),
                                       child: Icon(
                                         Icons.add,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                if (reply.feedback == '1' &&
+                                    reply.feedbackCount != '0')
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: Container(
+                                      padding: EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.successColor,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.check,
                                         size: 16,
                                         color: Colors.white,
                                       ),

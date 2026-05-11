@@ -32,14 +32,33 @@ class Gallery extends GetView<DetailController> {
               ),
               itemCount: controller.grievanceDetail.value!.files.length,
               itemBuilder: (context, index) {
-                return CachedNetworkImage(
-                  imageUrl:
-                      controller.grievanceDetail.value!.files[index] ?? '',
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) =>
-                      Center(child: CircularProgressIndicator()),
-                  errorWidget: (context, url, error) =>
-                      Icon(Icons.broken_image),
+                return GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => Dialog(
+                        child: CachedNetworkImage(
+                          imageUrl:
+                              controller.grievanceDetail.value!.files[index] ??
+                              '',
+                          fit: BoxFit.contain,
+                          placeholder: (context, url) =>
+                              Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.broken_image),
+                        ),
+                      ),
+                    );
+                  },
+                  child: CachedNetworkImage(
+                    imageUrl:
+                        controller.grievanceDetail.value!.files[index] ?? '',
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) =>
+                        Icon(Icons.broken_image),
+                  ),
                 );
               },
             );

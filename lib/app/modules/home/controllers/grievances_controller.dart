@@ -9,6 +9,13 @@ class GrievancesController extends GetxController {
   late GriveanceService _grievanceService;
   var grievances = <Griveance>[];
   var isLoading = false;
+  Map<String, String> tabs = {
+    "all": "Semua",
+    "0": "Proses",
+    "1": "Selesai",
+    "2": "Arsip",
+  };
+  RxString selectedTabIndex = "all".obs;
   TextEditingController searchController = TextEditingController();
   @override
   void onInit() {
@@ -21,20 +28,22 @@ class GrievancesController extends GetxController {
 
       grievances.clear();
       if (query != null && query.length >= 3) {
-        fetchGrievances(query);
+        fetchGrievances();
       } else {
-        fetchGrievances(null);
+        fetchGrievances();
       }
     });
     // fetchGrievances();
   }
 
-  void fetchGrievances(String? search) async {
+  void fetchGrievances() async {
     isLoading = true;
     update();
     try {
-      search ??= '';
-      grievances = await _grievanceService.getGrievances(search);
+      grievances = await _grievanceService.getGrievances(
+        searchController.text.isEmpty ? null : searchController.text,
+        selectedTabIndex.value,
+      );
     } catch (e) {
       if (e.toString().contains('Unauthorized')) {
         await Get.find<AuthService>().logout();
