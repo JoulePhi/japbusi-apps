@@ -1,11 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:japbusi/app/data/models/grievance_model.dart';
 import 'package:japbusi/app/data/services/auth_service.dart';
 import 'package:japbusi/app/modules/home/controllers/home_controller.dart';
+import 'package:japbusi/app/modules/home/views/widgets/anggota_widget.dart';
+import 'package:japbusi/app/modules/home/views/widgets/category_chart.dart';
+import 'package:japbusi/app/modules/home/views/widgets/dashboard_card.dart';
+import 'package:japbusi/app/modules/home/views/widgets/grievance_tren_chart.dart';
+import 'package:japbusi/app/modules/home/views/widgets/visitor_chart.dart';
 import 'package:japbusi/app/modules/splash/controllers/splash_controller.dart';
 import 'package:japbusi/app/routes/app_pages.dart';
 import 'package:japbusi/app/utils/app_colors.dart';
@@ -78,518 +85,353 @@ class HomeTab extends GetView<HomeController> {
                             ),
                           ],
                         ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: FaIcon(
-                            FontAwesomeIcons.solidBell,
-                            color: Colors.white,
-                            size: 22,
-                          ),
+                        Stack(
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                Get.toNamed(Routes.NOTIFICATIONS);
+                              },
+                              icon: FaIcon(
+                                FontAwesomeIcons.solidBell,
+                                color: Colors.white,
+                                size: 22,
+                              ),
+                            ),
+                            // Badge
+                            Obx(
+                              () => Positioned(
+                                right: 8,
+                                top: 8,
+                                child: Container(
+                                  padding: EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  constraints: BoxConstraints(
+                                    minWidth: 16,
+                                    minHeight: 16,
+                                  ),
+                                  child: Text(
+                                    Get.find<AuthService>().notifications.length
+                                        .toString(),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                     SizedBox(height: 40),
-                    CarouselSlider(
-                      options: CarouselOptions(
-                        aspectRatio: 16 / 9,
-                        viewportFraction: 1,
-                        enlargeCenterPage: true,
-                        autoPlay: true,
-                      ),
-                      items: Get.find<SplashController>()
-                          .appData
-                          .value!
-                          .carousels
-                          .map((carousel) {
-                            return Container(
-                              margin: EdgeInsets.symmetric(horizontal: 5),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                image: DecorationImage(
-                                  image: CachedNetworkImageProvider(
-                                    carousel.foto,
-                                  ),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                padding: EdgeInsets.all(16),
-                                alignment: carousel.choice == "center"
-                                    ? Alignment.center
-                                    : (carousel.choice == "left"
-                                          ? Alignment.centerLeft
-                                          : Alignment.centerRight),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: Align(
-                                        alignment: carousel.choice == "center"
-                                            ? Alignment.center
-                                            : (carousel.choice == "left"
-                                                  ? Alignment.centerLeft
-                                                  : Alignment.centerRight),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              carousel.choice == "center"
-                                              ? CrossAxisAlignment.center
-                                              : (carousel.choice == "left"
-                                                    ? CrossAxisAlignment.start
-                                                    : CrossAxisAlignment.end),
-                                          children: [
-                                            Text(
-                                              carousel.judul,
-                                              textAlign:
-                                                  carousel.choice == "center"
-                                                  ? TextAlign.center
-                                                  : (carousel.choice == "left"
-                                                        ? TextAlign.left
-                                                        : TextAlign.right),
-                                              style: AppTextStyles.white
-                                                  .copyWith(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                            ),
-                                            SizedBox(
-                                              width: double.infinity,
-                                              child: Align(
-                                                alignment:
-                                                    carousel.choice == "center"
-                                                    ? Alignment.center
-                                                    : (carousel.choice == "left"
-                                                          ? Alignment.centerLeft
-                                                          : Alignment
-                                                                .centerRight),
-                                                child: Html(
-                                                  data: carousel.deskripsi,
-                                                  style: {
-                                                    "*": Style(
-                                                      color: Colors.white,
-                                                      fontSize: FontSize(10),
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      textAlign:
-                                                          carousel.choice ==
-                                                              "center"
-                                                          ? TextAlign.center
-                                                          : (carousel.choice ==
-                                                                    "left"
-                                                                ? TextAlign.left
-                                                                : TextAlign
-                                                                      .right),
-                                                    ),
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                    Obx(
+                      () => controller.dashboard.value == null
+                          ? CircularProgressIndicator()
+                          : Column(
+                              children: [
+                                if (Get.find<AuthService>().user!.isMax)
+                                  Row(
+                                    spacing: 10,
+                                    children: [
+                                      Expanded(
+                                        child: DashboardCard(
+                                          title: 'TOTAL ADUAN',
+                                          mainValue: controller
+                                              .dashboard
+                                              .value!
+                                              .totalGrievances
+                                              .toString(),
+                                          subtitle: 'MENUNGGU VERIFIKASI',
+                                          subValue: controller
+                                              .dashboard
+                                              .value!
+                                              .totalGrievancesWaiting
+                                              .toString(),
+                                          backgroundColor: const Color(
+                                            0xFFE8E5FF,
+                                          ),
+                                          icon: Icons.report_problem_outlined,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          })
-                          .toList(),
-                    ),
-
-                    SizedBox(height: 40),
-                    if (Get.find<AuthService>().user!.roleName == 'Pelapor')
-                      Container(
-                        padding: EdgeInsets.all(16),
-                        width: double.infinity,
-
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: AppColors.textSecondary.withOpacity(0.3),
-                            width: 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 10,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Kronologi Kejadian',
-                              style: AppTextStyles.headline2.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Cerita kamu sangat penting agar kami dapat membantu menyelesaikan pengaduanmu',
-                              style: AppTextStyles.caption.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            // text area for input
-                            TextField(
-                              maxLines: 4,
-                              controller: controller.descriptionController,
-                              decoration: InputDecoration(
-                                hintText: 'Deskripsi',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: AppColors.textSecondary.withOpacity(
-                                      0.3,
-                                    ),
-                                    width: 1,
+                                      Expanded(
+                                        child: DashboardCard(
+                                          title: 'TOTAL PENGGUNA',
+                                          mainValue: controller
+                                              .dashboard
+                                              .value!
+                                              .totalPelapor
+                                              .toString(),
+                                          subtitle: '',
+                                          subValue: '',
+                                          backgroundColor: const Color(
+                                            0xFFD4F4DD,
+                                          ),
+                                          icon: Icons.article_outlined,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: AppColors.textSecondary,
-                                    width: 1,
+
+                                if (!Get.find<AuthService>().user!.isMax)
+                                  Row(
+                                    spacing: 10,
+                                    children: [
+                                      Expanded(
+                                        child: DashboardCard(
+                                          title: 'TOTAL ADUAN',
+                                          mainValue: controller
+                                              .dashboard
+                                              .value!
+                                              .totalGrievances
+                                              .toString(),
+                                          subtitle: 'MENUNGGU VERIFIKASI',
+                                          subValue: controller
+                                              .dashboard
+                                              .value!
+                                              .totalGrievancesWaiting
+                                              .toString(),
+                                          backgroundColor: const Color(
+                                            0xFFE8E5FF,
+                                          ),
+                                          icon: Icons.report_problem_outlined,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: DashboardCard(
+                                          title: 'TOTAL PENGGUNA',
+                                          mainValue: controller
+                                              .dashboard
+                                              .value!
+                                              .totalPelapor
+                                              .toString(),
+                                          subtitle: '',
+                                          subValue: '',
+                                          backgroundColor: const Color(
+                                            0xFFD4F4DD,
+                                          ),
+                                          icon: Icons.article_outlined,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
+                                SizedBox(height: 20),
                                 Text(
-                                  "Dokumen Pendukung",
-                                  style: AppTextStyles.headline3.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                  'Aduan Terbaru',
+                                  style: AppTextStyles.headline2.copyWith(
+                                    fontSize: 22,
                                     color: AppColors.textPrimary,
                                   ),
                                 ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    shape: CircleBorder(),
-                                    padding: EdgeInsets.all(2),
-                                    backgroundColor: AppColors.successColor,
-                                  ),
-                                  onPressed: () {
-                                    controller.pickMultipleImages();
-                                  },
-                                  child: FaIcon(
-                                    FontAwesomeIcons.plus,
-                                    size: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 15),
-                            Obx(
-                              () => controller.selectedImages.isNotEmpty
-                                  ? Wrap(
-                                      spacing: 8.0,
-                                      runSpacing: 8.0,
-                                      children: controller.selectedImages.map((
-                                        image,
-                                      ) {
-                                        return Stack(
-                                          children: [
-                                            Container(
-                                              width: 80,
-                                              height: 80,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                image: DecorationImage(
-                                                  image: FileImage(image),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
+                                SizedBox(height: 8),
+                                Column(
+                                  children: controller
+                                      .dashboard
+                                      .value!
+                                      .recentGrievances
+                                      .map(
+                                        (grievance) => Card(
+                                          margin: const EdgeInsets.symmetric(
+                                            vertical: 8,
+                                          ),
+                                          child: ListTile(
+                                            leading: FaIcon(
+                                              FontAwesomeIcons.commentDots,
+                                              color: AppColors.primaryColor,
                                             ),
-                                            Positioned(
-                                              top: 4,
-                                              right: 4,
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  controller.selectedImages
-                                                      .remove(image);
-                                                },
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color: AppColors.errorColor,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  padding: EdgeInsets.all(4),
-                                                  child: Icon(
-                                                    Icons.close,
-                                                    color: Colors.white,
-                                                    size: 16,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      }).toList(),
-                                    )
-                                  : SizedBox.shrink(),
-                            ),
-                            SizedBox(height: 15),
-                            Obx(
-                              () => Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      final result = await controller
-                                          .submitGrievance();
-                                      if (result.isNotEmpty) {
-                                        Get.toNamed(
-                                          Routes.DETAIL,
-                                          arguments: {'nomor': result},
-                                        );
-                                        AppSnackbar.success(
-                                          "Sukses",
-                                          "Pengaduan berhasil dikirim",
-                                        );
-                                      }
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primaryColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 12,
-                                        horizontal: 20,
-                                      ),
-                                    ),
-                                    child: controller.isSubmitting.value
-                                        ? CircularProgressIndicator()
-                                        : Text(
-                                            'Kirim Pengaduan',
-                                            style: AppTextStyles.button
-                                                .copyWith(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                          ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    SizedBox(height: 40),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Artikel',
-                          style: AppTextStyles.headline2.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Get.toNamed('/grievances', id: 1);
-                          },
-                          child: Text(
-                            'Lihat Semua',
-                            style: AppTextStyles.primary.copyWith(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-                    // make 16/9 carousel slider
-                    Obx(
-                      () => controller.isArticleLoading.value
-                          ? Center(child: CircularProgressIndicator())
-                          : SizedBox(
-                              height: 200,
-                              child: CarouselSlider(
-                                options: CarouselOptions(
-                                  aspectRatio: 16 / 9,
-                                  viewportFraction: 0.8,
-                                  enlargeCenterPage: true,
-                                  autoPlay: true,
-                                ),
-                                items: controller.articles.map((article) {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      Get.toNamed(
-                                        Routes.ARTICLE,
-                                        arguments: {'id': article.id},
-                                      );
-                                    },
-                                    child: Container(
-                                      margin: EdgeInsets.symmetric(
-                                        horizontal: 5,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        image: DecorationImage(
-                                          image: CachedNetworkImageProvider(
-                                            article.thumbnail,
-                                          ),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              AppColors.primaryColor
-                                                  .withOpacity(0.8),
-                                              Colors.transparent,
-                                            ],
-                                            begin: Alignment.bottomCenter,
-                                            end: Alignment.topCenter,
-                                          ),
-                                        ),
-                                        padding: EdgeInsets.all(16),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              article.title,
-                                              style: AppTextStyles.white
+                                            title: Text(
+                                              grievance.detail.length > 50
+                                                  ? '${grievance.detail.substring(0, 50)}...'
+                                                  : grievance.detail,
+                                              style: AppTextStyles.caption
                                                   .copyWith(
-                                                    fontSize: 12,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                             ),
-                                            SizedBox(height: 4),
-                                            Row(
-                                              children: [
-                                                FaIcon(
-                                                  FontAwesomeIcons.calendar,
-                                                  size: 12,
-                                                  color: Colors.white,
-                                                ),
-                                                SizedBox(width: 6),
-                                                Text(
-                                                  AppFormatter.formatDate(
-                                                    article.createdAt,
-                                                  ),
-                                                  style: AppTextStyles.white
-                                                      .copyWith(
-                                                        fontSize: 9,
-                                                        fontWeight:
-                                                            FontWeight.normal,
-                                                      ),
-                                                ),
-                                              ],
+                                            subtitle: Text(
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              grievance.nomor.toString(),
+                                              style: AppTextStyles.caption,
                                             ),
-                                          ],
+                                            trailing: Icon(
+                                              Icons.arrow_forward_ios,
+                                              size: 16,
+                                            ),
+                                            onTap: () {
+                                              Get.toNamed(
+                                                Routes.DETAIL,
+                                                arguments: {
+                                                  'nomor': grievance.nomor,
+                                                },
+                                              );
+                                            },
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                    ),
-                    SizedBox(height: 40),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: AppColors.successColor,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: AppColors.textSecondary.withOpacity(0.3),
-                          width: 1,
-                        ),
+                                      )
+                                      .toList(),
+                                ),
 
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            right: -10,
-                            child: Image.asset(
-                              'assets/present.png',
-                              height: 200,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Ayo Ajak Temanmu',
-                                  style: AppTextStyles.headline2.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                  ),
+                                AnggotaWidget(
+                                  totalMember: controller
+                                      .dashboard
+                                      .value!
+                                      .totalPopulation,
+                                  maleMember:
+                                      controller.dashboard.value!.totalMale,
+                                  femaleMember:
+                                      controller.dashboard.value!.totalFemale,
                                 ),
-                                SizedBox(height: 10),
-                                Text(
-                                  'Untuk download aplikasi JAPBUSI',
-                                  style: AppTextStyles.caption.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
+                                SizedBox(height: 20),
+                                if (Get.find<AuthService>().user!.isMax &&
+                                    Get.find<AuthService>().user!.roleName ==
+                                        'Federasi')
+                                  ProfileVisitorChart(
+                                    chartData: controller
+                                        .dashboard
+                                        .value!
+                                        .visitorStats
+                                        .map(
+                                          (e) => FlSpot(
+                                            controller
+                                                .dashboard
+                                                .value!
+                                                .visitorStats
+                                                .indexOf(e)
+                                                .toDouble(),
+                                            double.tryParse(e.visitCount) ?? 0,
+                                          ),
+                                        )
+                                        .toList(),
+                                    dateLabels: controller
+                                        .dashboard
+                                        .value!
+                                        .visitorStats
+                                        .map(
+                                          (e) => AppFormatter.formatDate(
+                                            e.visitDate,
+                                          ),
+                                        )
+                                        .toList(),
                                   ),
-                                ),
-                                SizedBox(height: 10),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    // Handle contact action
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.orangeColor,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: 5,
-                                      horizontal: 20,
-                                    ),
+                                if (Get.find<AuthService>().user!.isMax)
+                                  SizedBox(height: 20),
+                                if (Get.find<AuthService>().user!.isMax)
+                                  GrievanceTrenChart(
+                                    chartData:
+                                        controller
+                                            .dashboard
+                                            .value!
+                                            .grievancesEachDay
+                                            .isEmpty
+                                        ? []
+                                        : controller
+                                              .dashboard
+                                              .value!
+                                              .grievancesEachDay
+                                              .map(
+                                                (e) => FlSpot(
+                                                  controller
+                                                      .dashboard
+                                                      .value!
+                                                      .grievancesEachDay
+                                                      .indexOf(e)
+                                                      .toDouble(),
+                                                  double.tryParse(
+                                                        e.grievanceCount,
+                                                      ) ??
+                                                      0,
+                                                ),
+                                              )
+                                              .toList(),
+                                    dateLabels: controller
+                                        .dashboard
+                                        .value!
+                                        .grievancesEachDay
+                                        .map(
+                                          (e) => AppFormatter.formatDate(
+                                            e.grievanceDate,
+                                          ),
+                                        )
+                                        .toList(),
                                   ),
-                                  child: Text(
-                                    'Share',
-                                    style: AppTextStyles.button.copyWith(
-                                      color: Colors.white,
-                                    ),
+                                if (Get.find<AuthService>().user!.isMax)
+                                  SizedBox(height: 20),
+                                if (Get.find<AuthService>().user!.isMax)
+                                  CategoryPieChart(
+                                    chartData: [
+                                      ChartCategory(
+                                        name: "Perselisihan Hak",
+                                        province: '',
+                                        value: controller
+                                            .dashboard
+                                            .value!
+                                            .grievancesByCategory
+                                            .perselisihanHak,
+                                        color: Colors.blue,
+                                      ),
+                                      ChartCategory(
+                                        name: "Perselisihan Kepentingan",
+                                        province: '',
+                                        value: controller
+                                            .dashboard
+                                            .value!
+                                            .grievancesByCategory
+                                            .perselisihanKepentingan,
+                                        color: Colors.green,
+                                      ),
+                                      ChartCategory(
+                                        name:
+                                            "Perselisihan Antar Serikat Buruh",
+                                        province: '',
+                                        value: controller
+                                            .dashboard
+                                            .value!
+                                            .grievancesByCategory
+                                            .perselisihanAntarSerikatBuruhDalamSatuPerusahaan,
+                                        color: Colors.red,
+                                      ),
+                                      ChartCategory(
+                                        name:
+                                            "Perselisihan Pemutusan Hubungan Kerja",
+                                        province: '',
+                                        value: controller
+                                            .dashboard
+                                            .value!
+                                            .grievancesByCategory
+                                            .perselisihanPemutusanHubunganKerja,
+                                        color: Colors.orange,
+                                      ),
+                                      ChartCategory(
+                                        name: "Jam Kerja",
+                                        province: '',
+                                        value: controller
+                                            .dashboard
+                                            .value!
+                                            .grievancesByCategory
+                                            .jamKerja,
+                                        color: Colors.purple,
+                                      ),
+                                      ChartCategory(
+                                        name: "Upah",
+                                        province: '',
+                                        value: controller
+                                            .dashboard
+                                            .value!
+                                            .grievancesByCategory
+                                            .upah,
+                                        color: Colors.grey,
+                                      ),
+                                    ],
                                   ),
-                                ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
                     ),
-                    SizedBox(height: 100),
                   ],
                 ),
               ),
@@ -598,6 +440,47 @@ class HomeTab extends GetView<HomeController> {
         ],
       ),
     );
+  }
+
+  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 16);
+    Widget text;
+    switch (value.toInt()) {
+      case 2:
+        text = const Text('MAR', style: style);
+        break;
+      case 5:
+        text = const Text('JUN', style: style);
+        break;
+      case 8:
+        text = const Text('SEP', style: style);
+        break;
+      default:
+        text = const Text('', style: style);
+        break;
+    }
+
+    return SideTitleWidget(meta: meta, child: text);
+  }
+
+  Widget leftTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 15);
+    String text;
+    switch (value.toInt()) {
+      case 1:
+        text = '10K';
+        break;
+      case 3:
+        text = '30k';
+        break;
+      case 5:
+        text = '50k';
+        break;
+      default:
+        return Container();
+    }
+
+    return Text(text, style: style, textAlign: TextAlign.left);
   }
 
   String _getGreeting() {

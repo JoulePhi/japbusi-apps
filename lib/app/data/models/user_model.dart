@@ -11,6 +11,9 @@ class User {
   final String? subLevelName;
   final String companyName;
   final String roleName;
+  final String phone;
+  final bool isMax;
+  final bool isMin;
 
   User({
     required this.id,
@@ -19,6 +22,9 @@ class User {
     required this.companyName,
     required this.roleId,
     required this.roleName,
+    required this.isMax,
+    required this.isMin,
+    required this.phone,
     this.federationId = 0,
     this.level,
     this.federationName,
@@ -40,6 +46,9 @@ class User {
     companyName: json['company_name'] ?? '',
     roleId: json['role_id'] ?? 0,
     roleName: json['role_name'] ?? '',
+    isMax: json['is_max'] ?? false,
+    isMin: json['is_min'] ?? false,
+    phone: json['phone'] ?? '',
   );
 
   Map<String, dynamic> toJson() => {
@@ -55,5 +64,8 @@ class User {
     'company_name': companyName,
     'role_id': roleId,
     'role_name': roleName,
+    'is_max': isMax,
+    'is_min': isMin,
+    'phone': phone,
   };
 }

@@ -19,6 +19,11 @@ class AppColors {
   static const Color background = Colors.white;
   static const Color teal = Color(0xff66d1d1);
 
+  static List<Color> gradientColors = [
+    AppColors.successColor,
+    AppColors.primaryColor,
+  ];
+
   static const statusColors = {
     0: orangeColor, // Amber
     1: successColor, // Blue

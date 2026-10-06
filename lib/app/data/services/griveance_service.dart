@@ -13,8 +13,14 @@ class GriveanceService extends GetxService {
     return this;
   }
 
-  Future<List<Griveance>> getGrievances(String? search) async {
-    final response = await _grievanceProvider.grievances(search);
+  Future<List<Griveance>> getGrievances(
+    String? search, {
+    String status = 'all',
+  }) async {
+    final response = await _grievanceProvider.grievances(
+      search,
+      status: status,
+    );
     if (response.status.hasError) {
       throw Exception(response.statusText);
     }

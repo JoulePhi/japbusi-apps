@@ -6,6 +6,7 @@ import 'package:japbusi/app/data/models/city_model.dart';
 import 'package:japbusi/app/data/models/federation_model.dart';
 import 'package:japbusi/app/data/models/sublevel_model.dart';
 import 'package:japbusi/app/modules/splash/controllers/splash_controller.dart';
+import 'package:japbusi/app/routes/app_pages.dart';
 import 'package:japbusi/app/utils/app_colors.dart';
 import 'package:japbusi/app/utils/app_field.dart';
 import 'package:japbusi/app/utils/app_text_styles.dart';
@@ -66,40 +67,12 @@ class AuthView extends GetView<AuthController> {
                     Obx(
                       () => controller.isLoginView.value
                           ? _buildLoginForm()
-                          : _buildRegisterForm(),
+                          : _buildLoginForm(),
                     ),
 
                     const SizedBox(height: 20),
 
                     // Switch between Login/Register
-                    Obx(
-                      () => Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            controller.isLoginView.value
-                                ? 'Belum punya akun? '
-                                : 'Sudah punya akun? ',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: controller.toggleAuthView,
-                            child: Text(
-                              controller.isLoginView.value
-                                  ? 'Daftar Sekarang'
-                                  : 'Masuk',
-                              style: TextStyle(
-                                color: AppColors.primaryColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -159,7 +132,7 @@ class AuthView extends GetView<AuthController> {
             child: TextButton(
               onPressed: () {
                 // Navigate to forgot password
-                Get.toNamed('/auth/forgot-password');
+                Get.toNamed(Routes.FORGOT_PASSWORD);
               },
               child: Text(
                 'Lupa Kata Sandi?',

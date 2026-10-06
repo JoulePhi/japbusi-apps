@@ -23,6 +23,25 @@
           "other_platform_oauth_client": []
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1058335274059:android:5386987f6fc0127f8d49ce",
+        "android_client_info": {
+          "package_name": "com.rdpl.japbusi.japbusi.admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiKDI-OVaDZkQYUTgAk1wd6mpTuhU8tmA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
     }
   ],
   "configuration_version": "1"

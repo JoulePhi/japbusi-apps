@@ -5,7 +5,7 @@ import '../data/services/auth_service.dart';
 
 class ApiClient extends GetxService {
   late Dio _dio;
-  final String baseUrl = 'https://smilecloud.id/japbusi2/api';
+  final String baseUrl = 'https://japbusi.org/api';
 
   Future<ApiClient> init() async {
     _dio = Dio(

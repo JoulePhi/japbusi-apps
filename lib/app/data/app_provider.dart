@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 class AppProvider extends GetConnect {
   @override
   void onInit() {
-    httpClient.baseUrl = 'https://smilecloud.id/japbusi2/api';
+    httpClient.baseUrl = 'https://japbusi.org/api';
   }
 
   Future<Response> appData() async {

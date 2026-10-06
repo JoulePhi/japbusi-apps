@@ -8,6 +8,7 @@ class ArticleController extends GetxController {
   late HomeService _homeService;
   final isArticleLoading = false.obs;
   final RxList<Article> articles = <Article>[].obs;
+  final RxString selectedTabIndex = '0'.obs;
   var isMoreLoading = false.obs;
   var page = 1;
   final int limit = 10;
@@ -51,11 +52,13 @@ class ArticleController extends GetxController {
         search,
         page: page,
         limit: limit,
+        category: selectedTabIndex.value,
       );
       articles.assignAll(fetched);
       if (fetched.length < limit) hasMore(false);
-    } catch (e) {
+    } catch (e, trace) {
       print("Error fetching articles: $e");
+      print("Stack trace: $trace");
       AppSnackbar.error("Terjadi Kesalahan", 'gagal mendapatkan artikel');
     } finally {
       isArticleLoading.value = false;
@@ -68,9 +71,10 @@ class ArticleController extends GetxController {
     page++;
     try {
       final fetched = await _homeService.getArticles(
-        search,
+        searchController.text.isEmpty ? null : search,
         page: page,
         limit: limit,
+        category: selectedTabIndex.value,
       );
       if (fetched.isNotEmpty) {
         articles.addAll(fetched);

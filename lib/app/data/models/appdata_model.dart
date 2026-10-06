@@ -1,3 +1,4 @@
+import 'package:japbusi/app/data/models/article_category_model.dart';
 import 'package:japbusi/app/data/models/carousel_model.dart';
 import 'package:japbusi/app/data/models/city_model.dart';
 import 'package:japbusi/app/data/models/federation_model.dart';
@@ -8,12 +9,14 @@ class AppData {
   final List<City> cities;
   final List<Federation> federations;
   final List<Carousel> carousels;
+  final List<ArticleCategory> articleCategories;
 
   AppData({
     required this.provinces,
     required this.cities,
     required this.federations,
     required this.carousels,
+    required this.articleCategories,
   });
 
   Map<String, dynamic> toJson() {
@@ -22,6 +25,7 @@ class AppData {
       'cities': cities.map((e) => e.toJson()).toList(),
       'federations': federations.map((e) => e.toJson()).toList(),
       'carousels': carousels.map((e) => e.toJson()).toList(),
+      'articleCategories': articleCategories.map((e) => e.toJson()).toList(),
     };
   }
 }

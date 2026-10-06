@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:japbusi/app/data/models/article_model.dart';
+import 'package:japbusi/app/data/models/dahborad_model.dart';
 import 'package:japbusi/app/data/services/griveance_service.dart';
 import 'package:japbusi/app/data/services/home_service.dart';
 import 'package:japbusi/app/routes/app_pages.dart';
@@ -18,6 +19,7 @@ class HomeController extends GetxController {
   final isSubmitting = false.obs;
   final isArticleLoading = false.obs;
   final RxList<Article> articles = <Article>[].obs;
+  final Rx<Dashboard?> dashboard = Rx<Dashboard?>(null);
 
   @override
   void onInit() {
@@ -26,19 +28,31 @@ class HomeController extends GetxController {
     _homeService = Get.find<HomeService>();
     // close keyboard
     FocusScope.of(Get.context!).unfocus();
-    fetchArticles(null);
-    // fetchGrievances();
+    // fetchArticles(null);
+    fetchDashboard();
   }
 
   Future<void> fetchArticles(String? search) async {
     try {
       isArticleLoading.value = true;
       articles.value = await _homeService.getArticles(search, limit: 5);
-    } catch (e) {
+    } catch (e, trace) {
       print("Error fetching articles: $e");
+      print("Stack trace: $trace");
       AppSnackbar.error("Terjadi Kesalahan", "gagal mendapatkan artikel");
     } finally {
       isArticleLoading.value = false;
+    }
+  }
+
+  Future<void> fetchDashboard() async {
+    try {
+      final data = await _homeService.getDashboard();
+      dashboard.value = data;
+    } catch (e, trace) {
+      print("Error fetching dashboard: $e");
+      print("Stack trace: $trace");
+      AppSnackbar.error("Terjadi Kesalahan", "gagal mendapatkan dashboard");
     }
   }
 

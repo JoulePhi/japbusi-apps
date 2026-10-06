@@ -2,6 +2,7 @@
 import 'package:get/get.dart';
 import 'package:japbusi/app/data/home_provicer.dart';
 import 'package:japbusi/app/data/models/article_model.dart';
+import 'package:japbusi/app/data/models/dahborad_model.dart';
 
 class HomeService extends GetxService {
   final HomeProvider _articleProvider = Get.find<HomeProvider>();
@@ -10,15 +11,26 @@ class HomeService extends GetxService {
     return this;
   }
 
+  Future<Dashboard> getDashboard() async {
+    final response = await _articleProvider.dashboard();
+    print(response.body);
+    if (response.status.hasError) {
+      throw Exception(response.statusText);
+    }
+    return Dashboard.fromJson(response.body);
+  }
+
   Future<List<Article>> getArticles(
     String? search, {
     int page = 1,
     int limit = 10,
+    String category = '0',
   }) async {
     final response = await _articleProvider.articles(
       search,
       page: page,
       limit: limit,
+      category: category,
     );
     if (response.status.hasError) {
       throw Exception(response.statusText);

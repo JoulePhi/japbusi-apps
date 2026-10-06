@@ -112,6 +112,7 @@ void main() async {
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    Get.find<AuthService>().getNotifications();
     _showLocalNotification(message);
   });
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
@@ -124,7 +125,7 @@ void main() async {
 
   runApp(
     GetMaterialApp(
-      title: "JAPBUSI",
+      title: "JAPBUSI ADMIN",
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
       debugShowCheckedModeBanner: false,

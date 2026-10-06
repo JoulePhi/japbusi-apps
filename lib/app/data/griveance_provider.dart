@@ -4,7 +4,7 @@ import 'package:japbusi/app/data/services/auth_service.dart';
 class GriveanceProvider extends GetConnect {
   @override
   void onInit() {
-    httpClient.baseUrl = 'https://smilecloud.id/japbusi2/api';
+    httpClient.baseUrl = 'https://japbusi.org/api';
     httpClient.defaultContentType = 'application/json';
     httpClient.addRequestModifier<Object?>((request) {
       request.headers['Accept'] = 'application/json';
@@ -12,11 +12,11 @@ class GriveanceProvider extends GetConnect {
     });
   }
 
-  Future<Response> grievances(String? search) async {
+  Future<Response> grievances(String? search, {String status = 'all'}) async {
     final response = await get(
       '/grievances',
       headers: {'authorization': 'Bearer ${Get.find<AuthService>().token}'},
-      query: {'search': search},
+      query: {'search': search, 'status': status},
     );
     if (response.status.hasError) {
       final messages = response.body['messages'] ?? [];

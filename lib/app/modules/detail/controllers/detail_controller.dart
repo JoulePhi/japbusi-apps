@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:japbusi/app/data/models/grievance_model.dart';
+import 'package:japbusi/app/data/models/reply_model.dart';
 import 'package:japbusi/app/data/services/griveance_service.dart';
 import 'package:japbusi/app/utils/app_snackbar.dart';
 
@@ -11,6 +13,9 @@ class DetailController extends GetxController {
   var grievanceDetail = Rxn<Griveance>();
   var isLoading = false.obs;
   var selectedIndex = 0.obs;
+  final isSubmitting = false.obs;
+  final descriptionController = TextEditingController();
+  final Rx<Reply?> selectedReplyId = Rxn<Reply?>();
 
   RxList<File> selectedImages = <File>[].obs;
 
@@ -18,6 +23,20 @@ class DetailController extends GetxController {
 
   void changeTab(int index) {
     selectedIndex.value = index;
+  }
+
+  void viewImage(String imageUrl) {
+    Get.dialog(
+      Dialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.network(imageUrl),
+            TextButton(onPressed: () => Get.back(), child: Text('Tutup')),
+          ],
+        ),
+      ),
+    );
   }
 
   @override

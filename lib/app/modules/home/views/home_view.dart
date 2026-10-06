@@ -70,7 +70,7 @@ class HomeView extends GetView<MainController> {
           items: [
             BottomNavigationBarItem(
               icon: FaIcon(FontAwesomeIcons.house),
-              label: 'Beranda',
+              label: 'Dashboard',
             ),
             BottomNavigationBarItem(
               icon: FaIcon(FontAwesomeIcons.commentDots),

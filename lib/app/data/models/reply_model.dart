@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:japbusi/app/data/models/feedback_model.dart';
 import 'package:japbusi/app/data/models/user_model.dart';
 
 class Reply {
@@ -26,6 +27,7 @@ class Reply {
   final dynamic rd;
   final dynamic rfid;
   final String feedbackFileCount;
+  final List<Feedback> feedbacks;
 
   final User? user;
 
@@ -54,6 +56,7 @@ class Reply {
     required this.rfid,
     required this.feedbackFileCount,
     required this.user,
+    this.feedbacks = const [],
   });
 
   Reply copyWith({
@@ -136,6 +139,11 @@ class Reply {
     rfid: json["rfid"],
     feedbackFileCount: json["feedback_file_count"],
     user: json["user"] == null ? null : User.fromJson(json["user"]),
+    feedbacks: json["feedbacks"] == null
+        ? []
+        : List<Feedback>.from(
+            json["feedbacks"].map((x) => Feedback.fromJson(x)),
+          ),
   );
 
   Map<String, dynamic> toJson() => {
